@@ -1,0 +1,178 @@
+import React, { useState, useEffect } from 'react';
+import { Search, MapPin, Bell, ChevronDown, Home, Activity, Layers, Compass, ShieldCheck, FileText } from 'lucide-react';
+
+interface BioCarbonNavbarProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  isSimulating: boolean;
+  setIsSimulating: (sim: boolean) => void;
+}
+
+export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
+  activeTab,
+  setActiveTab,
+  isSimulating: _isSimulating,
+  setIsSimulating: _setIsSimulating
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('Gujarat Algae Farm');
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState('');
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      setCurrentTime(`${dateStr}, ${timeStr} IST`);
+    };
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const locations = [
+    'Gujarat Algae Farm',
+    'Gandhinagar Site #02',
+    'Kutch Coastal Facility',
+    'Surat Carbon Sink'
+  ];
+
+  const mainTabs = [
+    { id: 'landing', label: 'Landing Page', icon: Home },
+    { id: 'dashboard', label: 'Dashboard', icon: Activity },
+    { id: 'farm_map', label: 'Ponds & Twin', icon: Layers },
+    { id: 'remote_sensing', label: 'Remote Sensing', icon: Compass },
+    { id: 'passport', label: 'Carbon Passport', icon: ShieldCheck },
+    { id: 'reports', label: 'MRV Reports', icon: FileText }
+  ];
+
+  return (
+    <header className="w-full bg-[#080b11] border-b border-slate-800/80 px-4 lg:px-6 py-2 flex items-center justify-between sticky top-0 z-50 shadow-2xl">
+      
+      {/* LEFT: Brand Logo & Title */}
+      <div 
+        className="flex items-center space-x-3 cursor-pointer group select-none flex-shrink-0"
+        onClick={() => setActiveTab('landing')}
+      >
+        {/* Double Ring / Infinity Carbon Leaf Logo */}
+        <div className="relative w-9 h-9 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-2 border-emerald-400/80 scale-100 group-hover:scale-110 transition-transform" />
+          <div className="absolute inset-0 rounded-full border-2 border-teal-300/60 translate-x-1.5 opacity-80" />
+          <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/50" />
+        </div>
+
+        <div>
+          <div className="flex items-center space-x-1.5">
+            <span className="text-lg font-black tracking-tight text-white font-sans">
+              BioCarbon<span className="text-emerald-400">MRV</span>
+            </span>
+          </div>
+          <p className="text-[9px] font-mono tracking-widest text-slate-400 uppercase font-bold">
+            ALGAE CARBON INTELLIGENCE
+          </p>
+        </div>
+      </div>
+
+      {/* CENTER: Navigation Tabs (Landing Page vs Dashboard vs Features) */}
+      <nav className="hidden lg:flex items-center space-x-1 bg-[#0f1524] p-1 rounded-xl border border-slate-800">
+        {mainTabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                isActive
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* RIGHT: Search Bar, Location Selector, Clock & Profile */}
+      <div className="flex items-center space-x-3">
+        
+        {/* Search Bar */}
+        <div className="hidden xl:flex items-center relative w-48">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search..."
+            className="w-full bg-[#0f1524] text-slate-200 placeholder-slate-500 text-xs rounded-xl pl-8 pr-8 py-1.5 border border-slate-800 focus:outline-none focus:border-emerald-500/60 transition-all"
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 px-1 py-0.2 bg-[#172033] text-slate-400 text-[9px] font-mono font-semibold rounded">
+            ⌘K
+          </div>
+        </div>
+
+        {/* Location Dropdown Pill */}
+        <div className="relative hidden sm:block">
+          <button
+            onClick={() => setIsLocationOpen(!isLocationOpen)}
+            className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#0f1524] border border-slate-800 text-xs text-slate-200 hover:border-slate-700 transition-all font-medium"
+          >
+            <MapPin className="w-3.5 h-3.5 text-purple-400" />
+            <span className="truncate max-w-[120px]">{selectedLocation}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+
+          {isLocationOpen && (
+            <div className="absolute right-0 mt-2 w-52 bg-[#0f1524] border border-slate-800 rounded-xl shadow-2xl py-1 z-50">
+              {locations.map((loc) => (
+                <button
+                  key={loc}
+                  onClick={() => {
+                    setSelectedLocation(loc);
+                    setIsLocationOpen(false);
+                  }}
+                  className={`w-full text-left px-3.5 py-2 text-xs transition-colors ${
+                    selectedLocation === loc
+                      ? 'bg-purple-950/60 text-purple-300 font-semibold'
+                      : 'text-slate-300 hover:bg-slate-800/60'
+                  }`}
+                >
+                  {loc}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Live Data Clock */}
+        <div className="hidden 2xl:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#0f1524] border border-slate-800 text-xs font-mono">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-slate-300 font-medium">Live</span>
+          <span className="text-slate-500">•</span>
+          <span className="text-slate-400 text-[11px]">{currentTime || '12 Sep 2026, 08:27 IST'}</span>
+        </div>
+
+        {/* Notification Bell */}
+        <button 
+          onClick={() => setActiveTab('dashboard')}
+          className="relative p-2 rounded-xl bg-[#0f1524] border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition-all"
+        >
+          <Bell className="w-4 h-4" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+        </button>
+
+        {/* User Profile Avatar */}
+        <button 
+          onClick={() => setActiveTab('dashboard')}
+          className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-200 hover:border-emerald-500 transition-colors"
+        >
+          AY
+        </button>
+
+      </div>
+    </header>
+  );
+};

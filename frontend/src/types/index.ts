@@ -21,6 +21,8 @@ export interface Pond {
   baseline_biomass: number;
   current_biomass: number;
   updated_at?: string;
+  dynamic_carbon_fraction?: number;
+  species_purity_pct?: number;
 }
 
 export interface SensorReading {
@@ -34,6 +36,20 @@ export interface SensorReading {
   light_intensity: number;
   biomass_density: number;
   water_level: number;
+}
+
+export interface DynamicCarbonPrediction {
+  dynamic_carbon_fraction: number;
+  carbon_pct: number;
+  biochemical_breakdown: {
+    lipid_pct: number;
+    protein_pct: number;
+    carbohydrate_pct: number;
+  };
+  stress_factors: {
+    ph_stress: boolean;
+    thermal_stress: boolean;
+  };
 }
 
 export interface BiomassFusion {
@@ -57,8 +73,15 @@ export interface CO2Sequestration {
   baseline_biomass_kg: number;
   current_biomass_kg: number;
   biomass_gain_kg: number;
+  dynamic_carbon_fraction?: number;
+  carbon_pct?: number;
   carbon_fixed_kg: number;
   co2_captured_kg: number;
+  gross_co2_captured_kg?: number;
+  operational_kwh?: number;
+  operational_co2_emitted_kg?: number;
+  net_co2_removed_kg?: number;
+  operational_efficiency_pct?: number;
   daily_co2_rate_kg: number;
   monthly_co2_projection_tonnes: number;
 }
@@ -87,6 +110,39 @@ export interface VerificationScore {
   historical_consistency_pct: number;
   overall_confidence_pct: number;
   evidence_checklist: string[];
+  crypto_anchor?: CryptoAnchor;
+}
+
+export interface BiomassFate {
+  pathway_key: string;
+  pathway_name: string;
+  permanence_score_pct: number;
+  permanence_horizon: string;
+  tier: string;
+  net_co2_removed_kg: number;
+  permanent_credits_kg: number;
+  permanent_credits_tonnes: number;
+}
+
+export interface CryptoAnchor {
+  anchor_id: string;
+  sha256_hash: string;
+  previous_hash: string;
+  merkle_root: string;
+  timestamp: string;
+  status: string;
+  audit_trail_valid: boolean;
+  signature: string;
+}
+
+export interface SpeciesDetection {
+  species_detected: string;
+  species_purity_pct: number;
+  cyanobacteria_index: number;
+  blue_green_ratio: number;
+  red_green_ratio: number;
+  risk_level: 'OPTIMAL_PURITY' | 'MODERATE_DRIFT' | 'CRITICAL_CONTAMINATION';
+  explanation: string;
 }
 
 export interface CarbonPassport {
@@ -96,6 +152,7 @@ export interface CarbonPassport {
   monitoring_period: string;
   total_biomass_tonnes: number;
   estimated_co2_captured_tonnes: number;
+  net_co2_removed_tonnes?: number;
   average_daily_capture_kg: number;
   number_of_ponds: number;
   data_completeness_pct: number;
@@ -103,4 +160,7 @@ export interface CarbonPassport {
   anomalies_count: number;
   evidence_sources: string[];
   generated_at: string;
+  dynamic_carbon_pct?: number;
+  biomass_fate?: BiomassFate;
+  crypto_anchor?: CryptoAnchor;
 }

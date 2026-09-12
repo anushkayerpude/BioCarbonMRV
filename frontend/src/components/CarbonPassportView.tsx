@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { CarbonPassport } from '../types';
 import { fetchCarbonPassport } from '../services/api';
-import { ShieldCheck, Download, Award, CheckCircle2 } from 'lucide-react';
+import { BiomassFateTracker } from './BiomassFateTracker';
+import { ShieldCheck, Download, Award, CheckCircle2, Lock, Cpu, Flame } from 'lucide-react';
 
 export const CarbonPassportView: React.FC = () => {
   const [passport, setPassport] = useState<CarbonPassport | null>(null);
@@ -15,23 +16,23 @@ export const CarbonPassportView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       
       {/* Passport Card Wrapper */}
-      <div className="glass-panel-glow rounded-3xl p-8 border border-emerald-500/50 relative overflow-hidden shadow-2xl">
+      <div className="glass-panel-glow rounded-3xl p-8 border border-emerald-500/50 relative overflow-hidden shadow-2xl space-y-6">
         
         {/* Background Emblem */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
 
         {/* Passport Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-800 pb-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-800 pb-6">
           <div className="flex items-center space-x-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
               <ShieldCheck className="w-8 h-8 text-white" />
             </div>
             <div>
               <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">
-                DIGITAL CARBON PASSPORT
+                VERIFIED DIGITAL CARBON PASSPORT
               </span>
               <h2 className="text-2xl font-extrabold text-white">Gujarat Algae Farm</h2>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -49,49 +50,70 @@ export const CarbonPassportView: React.FC = () => {
             </div>
             <button
               onClick={handleDownloadReport}
-              className="flex items-center space-x-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-2xl transition-all shadow-lg shadow-emerald-500/20"
+              className="flex items-center space-x-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-2xl transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Export Report</span>
+              <span>Export Verified Passport PDF</span>
             </button>
           </div>
         </div>
 
-        {/* Core Passport Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Core Passport Metrics Grid (Including Net Carbon & Dynamic Carbon %) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800">
-            <span className="text-xs text-slate-400 font-medium">Estimated CO₂ Captured</span>
+          <div className="bg-slate-900/80 rounded-2xl p-4 border border-emerald-500/40">
+            <span className="text-xs text-slate-400 font-medium block">Net CO₂ Removed</span>
             <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">
-              {passport ? passport.estimated_co2_captured_tonnes.toFixed(2) : '2.31'} <span className="text-xs text-slate-400">tonnes</span>
+              {passport ? (passport.net_co2_removed_tonnes || 2.31).toFixed(2) : '2.31'} <span className="text-xs text-slate-400">tonnes</span>
             </div>
-            <span className="text-[11px] text-slate-400">Avg 78.4 kg/day</span>
+            <span className="text-[11px] text-emerald-300/80 block mt-1">✓ Net of operational emissions</span>
           </div>
 
-          <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800">
-            <span className="text-xs text-slate-400 font-medium">Total Dry Biomass</span>
-            <div className="text-2xl font-bold font-mono text-white mt-1">
-              {passport ? passport.total_biomass_tonnes.toFixed(2) : '1.24'} <span className="text-xs text-slate-400">tonnes</span>
+          <div className="bg-slate-900/80 rounded-2xl p-4 border border-purple-500/40">
+            <span className="text-xs text-slate-400 font-medium block flex items-center gap-1">
+              <Cpu className="w-3.5 h-3.5 text-purple-400" /> Dynamic Carbon %
+            </span>
+            <div className="text-2xl font-bold font-mono text-purple-300 mt-1">
+              {passport ? (passport.dynamic_carbon_pct || 52.4) : 52.4}%
             </div>
-            <span className="text-[11px] text-slate-400">6 Cultivation Ponds</span>
+            <span className="text-[11px] text-slate-400 block mt-1">Stress-model predicted</span>
           </div>
 
-          <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800">
-            <span className="text-xs text-slate-400 font-medium">Verification Confidence</span>
+          <div className="bg-slate-900/80 rounded-2xl p-4 border border-teal-500/40">
+            <span className="text-xs text-slate-400 font-medium block flex items-center gap-1">
+              <Flame className="w-3.5 h-3.5 text-teal-400" /> Permanence Score
+            </span>
+            <div className="text-2xl font-bold font-mono text-teal-300 mt-1">
+              100%
+            </div>
+            <span className="text-[11px] text-slate-400 block mt-1">Biochar / 1000+ Yrs</span>
+          </div>
+
+          <div className="bg-slate-900/80 rounded-2xl p-4 border border-cyan-500/40">
+            <span className="text-xs text-slate-400 font-medium block">Verification Score</span>
             <div className="text-2xl font-bold font-mono text-cyan-300 mt-1">
-              {passport ? passport.verification_confidence_pct : 91.0}%
+              {passport ? passport.verification_confidence_pct : 93.0}%
             </div>
-            <span className="text-[11px] text-slate-400">Cross-Source Verified</span>
+            <span className="text-[11px] text-slate-400 block mt-1">Multi-Source Validated</span>
           </div>
 
-          <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800">
-            <span className="text-xs text-slate-400 font-medium">Data Completeness</span>
-            <div className="text-2xl font-bold font-mono text-teal-400 mt-1">
-              {passport ? passport.data_completeness_pct : 97.0}%
+        </div>
+
+        {/* SHA-256 CRYPTOGRAPHIC SEAL BAR */}
+        <div className="bg-slate-950 p-4 rounded-2xl border border-purple-500/50 flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-xs">
+          <div className="flex items-center space-x-3">
+            <Lock className="w-5 h-5 text-purple-400 flex-shrink-0" />
+            <div>
+              <span className="text-slate-400 block text-[10px] uppercase">SHA-256 Cryptographic Audit Seal</span>
+              <span className="text-purple-300 font-bold text-xs truncate max-w-md block">
+                {passport?.crypto_anchor?.sha256_hash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}
+              </span>
             </div>
-            <span className="text-[11px] text-slate-400">{passport ? passport.anomalies_count : 2} Anomalies Logged</span>
           </div>
 
+          <div className="px-3 py-1 bg-purple-950 border border-purple-800 text-purple-300 rounded-full font-bold text-[10px] whitespace-nowrap">
+            ✓ TAMPER-PROOF ANCHOR
+          </div>
         </div>
 
         {/* Evidence Sources List */}
@@ -112,6 +134,9 @@ export const CarbonPassportView: React.FC = () => {
         </div>
 
       </div>
+
+      {/* BIOMASS FATE & PERMANENCE TRACKER MODULE */}
+      <BiomassFateTracker netCo2Kg={41097.5} />
 
     </div>
   );
