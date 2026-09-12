@@ -112,6 +112,7 @@ class CO2SequestrationEngine:
             "carbon_pct": c_pred["carbon_pct"],
             "biochemical_breakdown": c_pred["biochemical_breakdown"],
             "carbon_fixed_kg": round(carbon_fixed_kg, 2),
+            "co2_captured_kg": round(net_co2_removed_kg, 2),
             "gross_co2_captured_kg": round(gross_co2_captured_kg, 2),
             "operational_kwh": round(operational_kwh, 2),
             "operational_co2_emitted_kg": round(operational_co2_emitted_kg, 2),
@@ -134,8 +135,10 @@ class CO2SequestrationEngine:
 
         return {
             "biomass_gain_kg": round(total_biomass_gain, 2),
+            "dynamic_carbon_fraction": avg_c_fraction,
             "avg_dynamic_carbon_fraction": avg_c_fraction,
             "carbon_fixed_kg": round(total_carbon_fixed, 2),
+            "co2_captured_kg": round(total_net_co2, 2),
             "gross_co2_captured_kg": round(total_gross_co2, 2),
             "operational_co2_emitted_kg": round(total_op_emitted, 2),
             "net_co2_removed_kg": round(total_net_co2, 2),

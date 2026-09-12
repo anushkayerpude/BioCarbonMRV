@@ -71,11 +71,15 @@ class FusionWeightsSchema(BaseModel):
 class CO2SequestrationSchema(BaseModel):
     pond_id: Optional[str] = None
     farm_id: Optional[str] = None
-    baseline_biomass_kg: float
-    current_biomass_kg: float
+    baseline_biomass_kg: Optional[float] = 0.0
+    current_biomass_kg: Optional[float] = 0.0
     biomass_gain_kg: float
     carbon_fixed_kg: float
-    co2_captured_kg: float
+    co2_captured_kg: Optional[float] = None
+    gross_co2_captured_kg: Optional[float] = None
+    operational_co2_emitted_kg: Optional[float] = None
+    net_co2_removed_kg: Optional[float] = None
+    dynamic_carbon_fraction: Optional[float] = None
     daily_co2_rate_kg: float
     monthly_co2_projection_tonnes: float
 
