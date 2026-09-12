@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 
 from app.data.providers.nwdp import nwdp_provider, NWDPDataProvider
+from app.data.providers.cpcb import cpcb_provider, CPCBDataProvider
 from app.data.spatial import match_nearest_station, haversine_distance
 
 logger = logging.getLogger("environmental_pipeline")
@@ -136,6 +137,7 @@ class EnvironmentalPipeline:
                         "distance_to_aoi_km": self._nearest_stations["relative_humidity"]["distance_km"]
                     }
                 },
+                "water_quality_baseline": cpcb_provider.get_water_quality_baseline(aoi_lat, aoi_lon),
                 "fallback_active": False
             }
 

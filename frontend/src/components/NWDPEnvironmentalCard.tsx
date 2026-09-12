@@ -129,6 +129,22 @@ export const NWDPEnvironmentalCard: React.FC<NWDPEnvironmentalCardProps> = ({ nw
 
       </div>
 
+      {/* CPCB Surface Water Quality Baseline Strip */}
+      {(nwdpContext as any).water_quality_baseline && (
+        <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono">
+          <div className="flex items-center gap-1.5 text-emerald-400">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-bold">CPCB GUJARAT AMBIENT WATER BASELINE:</span>
+            <span className="text-slate-200">
+              pH {(nwdpContext as any).water_quality_baseline.parameters?.ph?.median ?? 8.3} • DO {(nwdpContext as any).water_quality_baseline.parameters?.dissolved_oxygen_mg_l?.median ?? 7.0} mg/L • Turbidity {(nwdpContext as any).water_quality_baseline.parameters?.turbidity_ntu?.median ?? 12.8} NTU • Cond {(nwdpContext as any).water_quality_baseline.parameters?.conductivity_us_cm?.median ?? 356} μS/cm
+            </span>
+          </div>
+          <span className="text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+            Node: {(nwdpContext as any).water_quality_baseline.matched_station?.station_id ?? 'CPCB-GJ-210'} ({(nwdpContext as any).water_quality_baseline.matched_station?.distance_km ?? 6.66} km)
+          </span>
+        </div>
+      )}
+
     </div>
   );
 };

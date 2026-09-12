@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
+from pathlib import Path
+import joblib
 import logging
 from typing import List, Dict, Tuple, Optional
 
@@ -9,16 +11,30 @@ logger = logging.getLogger(__name__)
 class BiomassMLModel:
     """
     RandomForestRegressor model for predicting algae biomass growth based on environmental conditions.
+    Trained on Zenodo open-access microalgae cultivation benchmark dataset.
     Includes a deterministic biological fallback model.
     """
 
     def __init__(self):
-        self.model = RandomForestRegressor(n_estimators=50, random_state=42, max_depth=8)
-        self.is_trained = False
         self.feature_names = [
             "temperature", "ph", "dissolved_oxygen", "turbidity",
             "co2_concentration", "light_intensity", "previous_biomass", "water_level"
         ]
+        self.model = None
+        self.is_trained = False
+        
+        # Try loading serialized trained model artifact
+        model_path = Path(__file__).resolve().parent / "biomass_model.joblib"
+        if model_path.exists():
+            try:
+                self.model = joblib.load(model_path)
+                self.is_trained = True
+                logger.info(f"Loaded trained RandomForestRegressor from {model_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load serialized biomass model: {e}")
+                self.model = RandomForestRegressor(n_estimators=50, random_state=42, max_depth=8)
+        else:
+            self.model = RandomForestRegressor(n_estimators=50, random_state=42, max_depth=8)
 
     def _deterministic_fallback(self, features: Dict[str, float]) -> Tuple[float, float]:
         """
@@ -81,11 +97,29 @@ class BiomassMLModel:
             return self._deterministic_fallback(features)
 
         try:
-            input_df = pd.DataFrame([features])[self.feature_names]
+            feat_dict = dict(features)
+            if "previous_biomass" not in feat_dict or feat_dict["previous_biomass"] is None:
+                feat_dict["previous_biomass"] = feat_dict.get("biomass_density", 1.8)
+
+            defaults = {
+                "temperature": 28.5,
+                "ph": 8.2,
+                "dissolved_oxygen": 7.0,
+                "turbidity": 45.0,
+                "co2_concentration": 450.0,
+                "light_intensity": 700.0,
+                "previous_biomass": 1.8,
+                "water_level": 0.35
+            }
+            for fn in self.feature_names:
+                if fn not in feat_dict or feat_dict[fn] is None:
+                    feat_dict[fn] = defaults.get(fn, 0.0)
+
+            input_df = pd.DataFrame([feat_dict])[self.feature_names]
             predicted_val = float(self.model.predict(input_df)[0])
             
             # Compute confidence score from decision tree prediction variance across trees
-            tree_predictions = [tree.predict(input_df)[0] for tree in self.model.estimators_]
+            tree_predictions = [tree.predict(input_df.values)[0] for tree in self.model.estimators_]
             std_dev = np.std(tree_predictions)
             confidence = round(max(0.70, min(0.98, 1.0 - (std_dev / (predicted_val + 1e-5)))), 2)
 

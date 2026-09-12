@@ -88,3 +88,27 @@ export async function triggerSensorTick(): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/sensors/tick`, { method: 'POST' });
   if (!res.ok) throw new Error('Failed to trigger sensor tick');
 }
+
+export async function fetchPondImagery(pondId: string): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/ponds/${pondId}/imagery`);
+  if (!res.ok) throw new Error(`Failed to fetch imagery for pond ${pondId}`);
+  return await res.json();
+}
+
+export async function fetchCPCBWaterQuality(): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/environmental/cpcb/water-quality`);
+  if (!res.ok) throw new Error('Failed to fetch CPCB water quality baseline');
+  return await res.json();
+}
+
+export async function fetchBhuvanContext(): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/environmental/bhuvan/water-context`);
+  if (!res.ok) throw new Error('Failed to fetch Bhuvan geospatial context');
+  return await res.json();
+}
+
+export async function fetchMLEvaluation(): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/ml/biomass/evaluation`);
+  if (!res.ok) throw new Error('Failed to fetch ML biomass evaluation');
+  return await res.json();
+}

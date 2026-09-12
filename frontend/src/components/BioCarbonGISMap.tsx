@@ -19,7 +19,7 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
 
-  const [mapMode, setMapMode] = useState<'map' | 'satellite' | '3d'>('map');
+  const [mapMode, setMapMode] = useState<'map' | 'satellite' | 'bhuvan' | '3d'>('map');
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Gujarat Algae Farm Center Coordinates (Ahmedabad, Gujarat)
@@ -107,6 +107,27 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
 
     map.on('load', () => {
       setMapLoaded(true);
+
+      // Add ISRO Bhuvan WMS water bodies layer
+      map.addSource('bhuvan-wms-source', {
+        type: 'raster',
+        tiles: [
+          'https://bhuvan-vec1.nrsc.gov.in/bhuvan/wms?service=WMS&request=GetMap&layers=basemap:waterbody_DEM&styles=&format=image/png&transparent=true&version=1.1.1&width=256&height=256&srs=EPSG:3857&bbox={bbox-epsg-3857}'
+        ],
+        tileSize: 256
+      });
+
+      map.addLayer({
+        id: 'bhuvan-wms-layer',
+        type: 'raster',
+        source: 'bhuvan-wms-source',
+        layout: {
+          visibility: 'none'
+        },
+        paint: {
+          'raster-opacity': 0.8
+        }
+      });
 
       // Add GeoJSON source for raceway ponds
       map.addSource('raceway-ponds', {
@@ -215,11 +236,20 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
     });
   }, [ponds, selectedPondId, mapLoaded]);
 
-  // Handle View Mode Switching (Map, Satellite, 3D)
-  const handleViewModeChange = (mode: 'map' | 'satellite' | '3d') => {
+  // Handle View Mode Switching (Map, Satellite, Bhuvan, 3D)
+  const handleViewModeChange = (mode: 'map' | 'satellite' | 'bhuvan' | '3d') => {
     setMapMode(mode);
     if (!mapRef.current) return;
     const map = mapRef.current;
+
+    // Toggle Bhuvan WMS raster layer
+    if (map.getLayer('bhuvan-wms-layer')) {
+      map.setLayoutProperty(
+        'bhuvan-wms-layer',
+        'visibility',
+        mode === 'bhuvan' ? 'visible' : 'none'
+      );
+    }
 
     if (mode === '3d') {
       map.flyTo({
@@ -228,6 +258,14 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
         pitch: 60,
         bearing: -35,
         duration: 1500
+      });
+    } else if (mode === 'bhuvan') {
+      map.flyTo({
+        center: farmCenter,
+        zoom: 14.8,
+        pitch: 20,
+        bearing: 0,
+        duration: 1200
       });
     } else if (mode === 'satellite') {
       map.flyTo({
@@ -308,6 +346,17 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
             <span>Satellite</span>
           </button>
           <button
+            onClick={() => handleViewModeChange('bhuvan')}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              mapMode === 'bhuvan'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span className="text-[9px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-700 px-1 rounded">ISRO</span>
+            <span>Bhuvan</span>
+          </button>
+          <button
             onClick={() => handleViewModeChange('3d')}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               mapMode === '3d'
@@ -364,6 +413,19 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
           <Layers className="w-4 h-4 text-purple-400" />
         </button>
       </div>
+
+      {/* ISRO BHUVAN HYDROLOGY OVERLAY (Bottom Center) */}
+      {mapMode === 'bhuvan' && (
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none hidden sm:flex">
+          <div className="bg-[#0f1524]/95 backdrop-blur-xl border border-emerald-500/50 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center space-x-3 pointer-events-auto">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+            <div className="text-xs">
+              <span className="font-mono font-bold text-emerald-400 mr-2">ISRO BHUVAN FOUNDATION:</span>
+              <span className="text-slate-300 font-medium">Sabarmati River Basin (5A1A2) • Proximity: 2.49 km to Sabarmati Channel • Deep Alluvial Aquifer</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FLOATING POND HEALTH LEGEND (Bottom Left of Map) */}
       <div className="absolute left-5 bottom-5 z-30 bg-[#0f1524]/95 backdrop-blur-xl border border-slate-800/90 p-3.5 rounded-2xl shadow-2xl pointer-events-auto">

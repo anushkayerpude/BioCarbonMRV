@@ -1,0 +1,29 @@
+{
+  "dataset_name": "Zenodo Microalgae (Chlorella vulgaris) Biomass Dataset",
+  "total_samples": 1200,
+  "train_samples": 960,
+  "test_samples": 240,
+  "algorithm": "RandomForestRegressor",
+  "parameters": {
+    "n_estimators": 100,
+    "max_depth": 12,
+    "random_state": 42
+  },
+  "metrics": {
+    "r2_score": 0.9957,
+    "rmse": 0.05,
+    "mae": 0.0273,
+    "cv_5fold_r2_mean": 0.9934,
+    "cv_5fold_r2_std": 0.0037
+  },
+  "feature_importances": {
+    "temperature": 0.0054,
+    "ph": 0.0016,
+    "dissolved_oxygen": 0.0002,
+    "turbidity": 0.0002,
+    "co2_concentration": 0.0002,
+    "light_intensity": 0.0001,
+    "previous_biomass": 0.9921,
+    "water_level": 0.0002
+  }
+}

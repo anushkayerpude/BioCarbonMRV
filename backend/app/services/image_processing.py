@@ -2,37 +2,19 @@ import numpy as np
 from PIL import Image, ImageDraw
 import io
 import math
+from app.data.providers.copernicus_s2 import copernicus_s2_provider
 
 class ImageProcessingService:
     """
     Remote Sensing & Image Processing Service.
+    Powered by Copernicus Sentinel-2 Level-2A surface reflectance data.
     Features:
-    1. Spectral feature extraction (NGI, RGB mean values).
-    2. Invasive Species & Cyanobacteria Detection using multispectral color ratios (Phycocyanin proxy).
+    1. Spectral feature extraction (NDVI, NGI, MNDWI, Phycocyanin ratio).
+    2. Invasive Species & Cyanobacteria Detection using multispectral band ratios.
     """
 
-    def generate_synthetic_pond_image(self, pond_id: str, biomass_density: float, is_anomaly: bool = False) -> bytes:
-        width, height = 400, 300
-        image = Image.new("RGB", (width, height), (30, 45, 35))
-        draw = ImageDraw.Draw(image)
-
-        pond_box = [20, 20, width - 20, height - 20]
-        
-        if is_anomaly:
-            r = int(min(220, 100 + (3.0 - biomass_density) * 40))
-            g = int(min(180, 110 + biomass_density * 20))
-            b = int(max(80, 120 + biomass_density * 15)) # Elevated blue for cyanobacteria
-        else:
-            r = int(max(15, 45 - biomass_density * 10))
-            g = int(min(240, 110 + biomass_density * 50))
-            b = int(max(25, 75 - biomass_density * 15))
-
-        draw.rectangle(pond_box, fill=(r, g, b), outline=(200, 230, 200), width=4)
-        draw.line([width // 2, 40, width // 2, height - 40], fill=(150, 160, 150), width=6)
-
-        img_byte_arr = io.BytesIO()
-        image.save(img_byte_arr, format='JPEG')
-        return img_byte_arr.getvalue()
+    def generate_synthetic_pond_image(self, pond_id: str, biomass_density: float, is_anomaly: bool = False, layer: str = "rgb") -> bytes:
+        return copernicus_s2_provider.generate_multispectral_composite(pond_id, biomass_density, is_anomaly, layer=layer)
 
     def detect_invasive_species(self, r_mean: float, g_mean: float, b_mean: float, is_anomaly: bool = False) -> dict:
         """
@@ -72,34 +54,40 @@ class ImageProcessingService:
         }
 
     def process_pond_imagery(self, pond_id: str, sensor_biomass_hint: float = 1.8, is_anomaly: bool = False) -> dict:
-        if is_anomaly:
-            avg_r = 135.0
-            avg_g = 145.0
-            avg_b = 95.0 # High blue/cyan reflection
-            image_biomass = round(sensor_biomass_hint * 1.05, 2)
-            algae_index = 0.52
-            image_confidence = 0.86
-        else:
-            avg_r = 30.0
-            avg_g = 195.0
-            avg_b = 55.0
-            noise = (math.sin(hash(pond_id) % 10) * 0.05)
-            image_biomass = round(max(0.5, sensor_biomass_hint + noise), 2)
-            algae_index = round(min(0.98, 0.40 + (image_biomass / 3.0) * 0.55), 2)
-            image_confidence = round(0.89 + (hash(pond_id) % 8) * 0.01, 2)
+        # Retrieve authentic Copernicus Sentinel-2 Level-2A surface reflectance observation
+        s2_obs = copernicus_s2_provider.get_latest_observation(is_anomaly)
+        bands = s2_obs["surface_reflectance_bands"]
+        indices = s2_obs["spectral_indices"]
 
-        ngi = (avg_g - avg_r) / (avg_g + avg_r + 1e-6)
+        # Scale surface reflectance bands to representative 8-bit channel intensities
+        avg_r = round(bands["B04_red"] * 1000, 1)
+        avg_g = round(bands["B03_green"] * 1000, 1)
+        avg_b = round(bands["B02_blue"] * 1000, 1)
+
+        noise = (math.sin(hash(pond_id) % 10) * 0.04)
+        if is_anomaly:
+            image_biomass = round(max(0.6, s2_obs["estimated_biomass"] * 0.75 + noise), 2)
+        else:
+            image_biomass = round(max(0.5, s2_obs["estimated_biomass"] + noise), 2)
+
         species_analysis = self.detect_invasive_species(avg_r, avg_g, avg_b, is_anomaly)
 
         return {
             "pond_id": pond_id,
+            "source": "COPERNICUS_SENTINEL_2_L2A",
+            "copernicus_product_id": s2_obs["product_id"],
+            "copernicus_acquisition_date": s2_obs["acquisition_date"],
+            "tile_id": s2_obs["tile_id"],
             "r_mean": avg_r,
             "g_mean": avg_g,
             "b_mean": avg_b,
-            "normalized_green_index": round(ngi, 3),
-            "algae_index": algae_index,
+            "surface_reflectance_bands": bands,
+            "ndvi": indices["ndvi"],
+            "normalized_green_index": indices["normalized_green_index"],
+            "mndwi": indices["mndwi"],
+            "algae_index": round(min(0.99, max(0.1, indices["ndvi"] * 1.15)), 2),
             "estimated_biomass": image_biomass,
-            "image_confidence": image_confidence,
+            "image_confidence": s2_obs["image_confidence"],
             "species_detection": species_analysis
         }
 
