@@ -14,32 +14,57 @@ import { CarbonPassportView } from './components/CarbonPassportView';
 import { ReportGenerator } from './components/ReportGenerator';
 import { DemoScenarioWalker } from './components/DemoScenarioWalker';
 
-import type { Pond, CO2Sequestration, VerificationScore } from './types';
-import { fetchFarmPonds, fetchFarmCarbon, fetchFarmVerification, triggerSensorTick } from './services/api';
+import { NWDPEnvironmentalCard } from './components/NWDPEnvironmentalCard';
+import { useTelemetryWebSocket } from './services/websocket';
+import type { Pond, CO2Sequestration, VerificationScore, NWDPEnvironmentalContext } from './types';
+import { fetchFarmPonds, fetchFarmCarbon, fetchFarmVerification, fetchNWDPContext, triggerSensorTick } from './services/api';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<string>('landing');
   const [ponds, setPonds] = useState<Pond[]>([]);
   const [carbonData, setCarbonData] = useState<CO2Sequestration | null>(null);
   const [verificationData, setVerificationData] = useState<VerificationScore | null>(null);
+  const [nwdpContext, setNwdpContext] = useState<NWDPEnvironmentalContext | null>(null);
 
   const [selectedPond, setSelectedPond] = useState<Pond | null>(null);
   const [evidencePondId, setEvidencePondId] = useState<string | null>(null);
   const [isEvidenceOpen, setIsEvidenceOpen] = useState<boolean>(false);
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
 
-  // Initial load & 4-second live simulation polling loop
+  // Real-time WebSocket Telemetry Stream Consumer with Auto-Reconnect
+  const { status: wsStatus } = useTelemetryWebSocket((frame) => {
+    if (frame.nwdp_environmental_context) {
+      setNwdpContext(frame.nwdp_environmental_context);
+    }
+    if (frame.ponds && frame.ponds.length > 0) {
+      setPonds((prevPonds) =>
+        prevPonds.map((p) => {
+          const updated = frame.ponds?.find((up) => up.pond_id === p.pond_id);
+          if (!updated) return p;
+          return {
+            ...p,
+            status: updated.status,
+            current_biomass: updated.sensor_values?.biomass_density ?? p.current_biomass
+          };
+        })
+      );
+    }
+  });
+
+  // Initial load & REST polling loop fallback if WebSocket disconnected
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [pData, cData, vData] = await Promise.all([
+        const [pData, cData, vData, nData] = await Promise.all([
           fetchFarmPonds(),
           fetchFarmCarbon(),
-          fetchFarmVerification()
+          fetchFarmVerification(),
+          fetchNWDPContext().catch(() => null)
         ]);
         setPonds(pData);
         setCarbonData(cData);
         setVerificationData(vData);
+        if (nData) setNwdpContext(nData);
       } catch (err) {
         console.error(err);
       }
@@ -47,15 +72,16 @@ export function App() {
 
     loadData();
 
+    // Only run REST polling if WebSocket is NOT connected (REST fallback)
     const interval = setInterval(async () => {
-      if (isSimulating) {
+      if (isSimulating && wsStatus !== 'CONNECTED') {
         await triggerSensorTick();
         loadData();
       }
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [isSimulating]);
+  }, [isSimulating, wsStatus]);
 
   const handleOpenEvidence = (pondId?: string) => {
     if (pondId) setEvidencePondId(pondId);
@@ -71,6 +97,7 @@ export function App() {
         setActiveTab={setActiveTab}
         isSimulating={isSimulating}
         setIsSimulating={setIsSimulating}
+        wsStatus={wsStatus}
       />
 
       {/* Main Body View */}
@@ -115,6 +142,9 @@ export function App() {
                   </div>
 
                 </div>
+
+                {/* Compact NWDP Environmental Telemetry Context Card */}
+                <NWDPEnvironmentalCard nwdpContext={nwdpContext} />
 
                 {/* Bottom Row of 4 KPI Metric Cards */}
                 <BioCarbonBottomKPIs

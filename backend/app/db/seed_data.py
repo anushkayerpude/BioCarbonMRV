@@ -64,6 +64,8 @@ def seed_database():
     readings_to_insert = []
     ml_training_data = []
 
+    from app.data.pipeline import environmental_pipeline
+
     for p in ponds_config:
         p_id = p["id"]
         is_p04 = (p_id == "P04")
@@ -73,15 +75,18 @@ def seed_database():
         current_bio = p["baseline"]
 
         while current_time <= now:
-            hour = current_time.hour
-            diurnal_temp = 28.0 + 3.0 * random.uniform(0.8, 1.2) * math_sin_hour(hour)
-            
-            temp = round(diurnal_temp, 1)
+            # Query REAL NWDP Environmental Telemetry for this historical timestamp
+            env_ctx = environmental_pipeline.get_environmental_context(current_time)
+            env_params = env_ctx["parameters"]
+            real_temp = env_params["temperature"]["value"]
+            real_solar = env_params["solar_radiation"]["value"]
+
+            temp = real_temp
             ph = round(8.2 + random.uniform(-0.2, 0.2), 2)
             do = round(7.5 + random.uniform(-0.5, 0.5), 1)
             turbidity = round(55.0 + random.uniform(-5.0, 5.0), 1)
             co2 = round(450.0 + random.uniform(-20, 20), 1)
-            light = round(max(0, 800.0 * math_sin_hour(hour)), 1)
+            light = real_solar
             water_level = round(0.35 + random.uniform(-0.02, 0.02), 2)
 
             if is_p04 and (now - current_time) <= timedelta(days=3):

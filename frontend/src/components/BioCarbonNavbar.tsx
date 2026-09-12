@@ -6,13 +6,15 @@ interface BioCarbonNavbarProps {
   setActiveTab: (tab: string) => void;
   isSimulating: boolean;
   setIsSimulating: (sim: boolean) => void;
+  wsStatus?: string;
 }
 
 export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
   activeTab,
   setActiveTab,
   isSimulating: _isSimulating,
-  setIsSimulating: _setIsSimulating
+  setIsSimulating: _setIsSimulating,
+  wsStatus = 'CONNECTED'
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('Gujarat Algae Farm');
@@ -147,10 +149,12 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
           )}
         </div>
 
-        {/* Live Data Clock */}
+        {/* Live Data Clock & WebSocket Stream Indicator */}
         <div className="hidden 2xl:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#0f1524] border border-slate-800 text-xs font-mono">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-slate-300 font-medium">Live</span>
+          <span className={`w-2 h-2 rounded-full ${wsStatus === 'CONNECTED' ? 'bg-emerald-400 animate-pulse' : wsStatus === 'RECONNECTING' ? 'bg-amber-400 animate-ping' : 'bg-slate-400'}`} />
+          <span className="text-slate-300 font-medium">
+            {wsStatus === 'CONNECTED' ? 'WS Stream Active' : wsStatus === 'RECONNECTING' ? 'WS Reconnecting...' : 'REST Fallback'}
+          </span>
           <span className="text-slate-500">•</span>
           <span className="text-slate-400 text-[11px]">{currentTime || '12 Sep 2026, 08:27 IST'}</span>
         </div>

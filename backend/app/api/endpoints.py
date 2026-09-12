@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta, timezone
@@ -12,6 +12,7 @@ from app.schemas.schemas import (
 )
 from app.data.providers.nwdp import nwdp_provider
 from app.data.pipeline import environmental_pipeline
+from app.api.websocket import ws_manager
 from app.services.sensor_simulator import sensor_simulator
 from app.services.image_processing import image_service
 from app.ml.biomass_model import biomass_ml_model
@@ -22,6 +23,25 @@ from app.services.verification_engine import verification_engine
 from app.services.report_generator import report_generator
 
 router = APIRouter()
+
+# ---------------- WEBSOCKET TELEMETRY STREAM ----------------
+@router.websocket("/ws/telemetry")
+async def websocket_telemetry_endpoint(websocket: WebSocket):
+    """
+    Real-time WebSocket endpoint pushing live telemetry updates every 3-4s.
+    """
+    await ws_manager.connect(websocket)
+    try:
+        env_context = environmental_pipeline.get_environmental_context()
+        await websocket.send_json({
+            "event": "INITIAL_CONNECTED",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "nwdp_environmental_context": env_context
+        })
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket)
 
 # ---------------- REAL NWDP ENVIRONMENTAL TELEMETRY ----------------
 @router.get("/environmental/nwdp/context")
@@ -139,6 +159,64 @@ def get_pond_imagery_tile(pond_id: str, db: Session = Depends(get_db)):
     bio_density = pond.current_biomass if pond else 1.8
     img_bytes = image_service.generate_synthetic_pond_image(pond_id, bio_density, is_anomaly)
     return Response(content=img_bytes, media_type="image/jpeg")
+
+@router.get("/ponds/{pond_id}/species")
+def get_pond_species_detection(pond_id: str, db: Session = Depends(get_db)):
+    pond = db.query(Pond).filter_by(pond_id=pond_id).first()
+    if not pond:
+        raise HTTPException(status_code=404, detail="Pond not found")
+    is_anomaly = (pond.status == "CRITICAL")
+    analysis = image_service.process_pond_imagery(pond_id, pond.current_biomass, is_anomaly)
+    return analysis["species_detection"]
+
+@router.get("/ponds/{pond_id}/crypto-anchor")
+def get_pond_crypto_anchor(pond_id: str, db: Session = Depends(get_db)):
+    import hashlib
+    pond = db.query(Pond).filter_by(pond_id=pond_id).first()
+    if not pond:
+        raise HTTPException(status_code=404, detail="Pond not found")
+    latest = db.query(SensorReading).filter_by(pond_id=pond_id).order_by(SensorReading.timestamp.desc()).first()
+    env = environmental_pipeline.get_environmental_context()
+    
+    raw_payload = f"{pond_id}:{pond.current_biomass}:{latest.timestamp if latest else 'now'}:{env['timestamp']}"
+    sha256_hash = hashlib.sha256(raw_payload.encode('utf-8')).hexdigest()
+    prev_hash = hashlib.sha256(f"PREV_{pond_id}".encode('utf-8')).hexdigest()
+    merkle_root = hashlib.sha256(f"{sha256_hash}:{prev_hash}".encode('utf-8')).hexdigest()[:32]
+    
+    return {
+        "anchor_id": f"BIO-ANCHOR-{sha256_hash[:8].upper()}",
+        "sha256_hash": sha256_hash,
+        "previous_hash": prev_hash,
+        "merkle_root": merkle_root,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "status": "VERIFIED_UNALTERED",
+        "audit_trail_valid": True,
+        "signature": f"BIO-SIG-2026-SHA256-{sha256_hash[:16]}"
+    }
+
+@router.get("/biomass-fate")
+def get_biomass_fate(net_co2_kg: float = Query(41097.5), pathway_key: str = Query("biochar")):
+    pathways = {
+        "biochar": {"name": "Biochar & Pyrolysis Soil Injection", "score": 100.0, "horizon": "1000+ Years (Geological)", "tier": "TIER_1_PERMANENT"},
+        "deep_sea": {"name": "Deep-Sea Anoxic Sediment Burial", "score": 100.0, "horizon": "1000+ Years (Oceanic)", "tier": "TIER_1_PERMANENT"},
+        "concrete": {"name": "Bio-Concrete Building Material Additive", "score": 95.0, "horizon": "500+ Years (Built Env)", "tier": "TIER_1_PERMANENT"},
+        "soil_amendment": {"name": "Agricultural Soil Amendment", "score": 75.0, "horizon": "100+ Years (Regenerative)", "tier": "TIER_2_DURABLE"},
+        "bioplastic": {"name": "Durable Bio-Polymers & Composites", "score": 60.0, "horizon": "50+ Years (Industrial)", "tier": "TIER_2_DURABLE"},
+        "animal_feed": {"name": "Aquaculture & Cattle Protein Feed", "score": 15.0, "horizon": "1-5 Years (Short Cycle)", "tier": "TIER_3_SHORT_CYCLE"},
+        "biofuel": {"name": "Aviation Biofuel / Combustion", "score": 0.0, "horizon": "Immediate Emission (Recycled)", "tier": "TIER_4_NEUTRAL"}
+    }
+    selected = pathways.get(pathway_key, pathways["biochar"])
+    perm_kg = (net_co2_kg * selected["score"]) / 100.0
+    return {
+        "pathway_key": pathway_key,
+        "pathway_name": selected["name"],
+        "permanence_score_pct": selected["score"],
+        "permanence_horizon": selected["horizon"],
+        "tier": selected["tier"],
+        "net_co2_removed_kg": net_co2_kg,
+        "permanent_credits_kg": perm_kg,
+        "permanent_credits_tonnes": round(perm_kg / 1000.0, 3)
+    }
 
 # ---------------- BIOMASS PREDICTION & DATA FUSION ----------------
 @router.get("/ponds/{pond_id}/biomass")

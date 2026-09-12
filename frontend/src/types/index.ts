@@ -164,3 +164,25 @@ export interface CarbonPassport {
   biomass_fate?: BiomassFate;
   crypto_anchor?: CryptoAnchor;
 }
+
+export interface NWDPParameterVal {
+  value: number;
+  unit: string;
+  station_id: string;
+  station_name: string;
+  distance_to_aoi_km: number;
+}
+
+export interface NWDPEnvironmentalContext {
+  source: string;
+  label: string;
+  timestamp: string;
+  parameters: {
+    temperature: NWDPParameterVal;
+    solar_radiation: NWDPParameterVal;
+    rainfall: NWDPParameterVal;
+    relative_humidity: NWDPParameterVal;
+  };
+  fallback_active: boolean;
+}
+
