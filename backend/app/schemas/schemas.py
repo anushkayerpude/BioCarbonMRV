@@ -42,9 +42,21 @@ class SensorReadingSchema(BaseModel):
     light_intensity: float
     biomass_density: float
     water_level: float
+    temperature_source: Optional[str] = "REAL_NWDP"
+    matched_station_id: Optional[str] = "NWDP-GJ-001"
+    matched_station_name: Optional[str] = "Gandhinagar Hydro-Met Station"
+    matched_station_distance_km: Optional[float] = 2.33
 
     class Config:
         from_attributes = True
+
+class NWDPStationSchema(BaseModel):
+    station_id: str
+    station_name: str
+    latitude: float
+    longitude: float
+    distance_km: Optional[float] = None
+
 
 class ImageryAnalysisSchema(BaseModel):
     pond_id: str

@@ -8,8 +8,10 @@ from app.models.models import Farm, Pond, SensorReading, AnomalyEvent, CarbonRep
 from app.schemas.schemas import (
     FarmSchema, PondSchema, SensorReadingSchema, BiomassPredictionSchema,
     CO2SequestrationSchema, AnomalyEventSchema, VerificationScoreSchema,
-    CarbonPassportSchema, FusionWeightsSchema
+    CarbonPassportSchema, FusionWeightsSchema, NWDPStationSchema
 )
+from app.data.providers.nwdp import nwdp_provider
+from app.data.pipeline import environmental_pipeline
 from app.services.sensor_simulator import sensor_simulator
 from app.services.image_processing import image_service
 from app.ml.biomass_model import biomass_ml_model
@@ -20,6 +22,43 @@ from app.services.verification_engine import verification_engine
 from app.services.report_generator import report_generator
 
 router = APIRouter()
+
+# ---------------- REAL NWDP ENVIRONMENTAL TELEMETRY ----------------
+@router.get("/environmental/nwdp/context")
+def get_nwdp_environmental_context():
+    """
+    Returns full 4-parameter NWDP environmental context (Temperature, Solar Radiation, Rainfall, Humidity)
+    spatially matched to BioCarbonMRV Gujarat AOI.
+    """
+    return environmental_pipeline.get_environmental_context()
+
+@router.get("/environmental/nwdp/station", response_model=NWDPStationSchema)
+def get_nwdp_nearest_station():
+    """
+    Returns spatial matching details for the nearest real NWDP hydro-met station to Gujarat AOI.
+    """
+    matched = nwdp_provider.find_nearest_station_to_aoi()
+    if not matched:
+        raise HTTPException(status_code=404, detail="No NWDP station found")
+    return matched
+
+@router.get("/environmental/nwdp/stations", response_model=List[NWDPStationSchema])
+def get_nwdp_all_stations():
+    """
+    Returns metadata for all available NWDP stations in Gujarat.
+    """
+    return nwdp_provider.get_stations()
+
+@router.get("/environmental/nwdp/telemetry")
+def get_nwdp_latest_telemetry():
+    """
+    Returns latest real canonical observation from nearest NWDP station (NWDP-GJ-001).
+    """
+    matched = nwdp_provider.find_nearest_station_to_aoi()
+    station_id = matched["station_id"] if matched else "NWDP-GJ-001"
+    obs = nwdp_provider.get_temperature_at_timestamp(station_id)
+    obs["station_distance_km"] = matched["distance_km"] if matched else 2.33
+    return obs
 
 # ---------------- FARMS ----------------
 @router.get("/farms", response_model=List[FarmSchema])

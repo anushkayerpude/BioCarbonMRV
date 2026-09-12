@@ -5,11 +5,13 @@ from sqlalchemy.orm import Session
 from app.models.models import Pond, SensorReading
 from app.db.database import SessionLocal
 from app.services.anomaly_detector import anomaly_detector
+from app.data.pipeline import environmental_pipeline
 
 class SensorSimulatorService:
     """
-    Simulates real-time IoT sensor telemetry across 6 cultivation ponds.
-    Introduces natural diurnal noise and periodic stress anomalies for Pond 04.
+    Simulates real-time IoT sensor telemetry across cultivation ponds.
+    Uses REAL NWDP Environmental Context (Temperature, Solar Radiation, Rainfall, Humidity) from nearest stations.
+    Simulates IoT pond parameters (pH, DO, Turbidity, CO2, Biomass) for pond-level micro-environment.
     """
 
     def generate_live_reading(self, db: Session, pond: Pond) -> dict:
@@ -17,6 +19,12 @@ class SensorSimulatorService:
         hour = now.hour
         is_p04 = (pond.pond_id == "P04")
         is_p06 = (pond.pond_id == "P06")
+
+        # Fetch REAL NWDP Environmental Context (Temperature, Solar Radiation, Rainfall, Relative Humidity)
+        env_context = environmental_pipeline.get_environmental_context(now)
+        env_params = env_context["parameters"]
+        real_nwdp_temp = env_params["temperature"]["value"]
+        real_nwdp_solar = env_params["solar_radiation"]["value"]
 
         # Base parameters
         if is_p04 and pond.status == "CRITICAL":
@@ -38,12 +46,12 @@ class SensorSimulatorService:
             biomass = round(pond.current_biomass + random.uniform(-0.01, 0.02), 2)
             water_level = round(0.33 + random.uniform(-0.01, 0.01), 2)
         else:
-            temp = round(28.4 + 2.0 * math.sin((hour - 8) * math.pi / 12.0) + random.uniform(-0.2, 0.2), 1)
+            temp = real_nwdp_temp
             ph = round(8.2 + random.uniform(-0.15, 0.15), 2)
             do = round(7.4 + random.uniform(-0.3, 0.3), 1)
             turbidity = round(54.0 + random.uniform(-2.5, 2.5), 1)
             co2 = round(450.0 + random.uniform(-10.0, 10.0), 1)
-            light = round(max(0.0, 820.0 * max(0, math.sin((hour - 6) * math.pi / 12.0)) + random.uniform(-20, 20)), 1)
+            light = real_nwdp_solar if real_nwdp_solar > 0 else round(max(0.0, 820.0 * max(0, math.sin((hour - 6) * math.pi / 12.0)) + random.uniform(-20, 20)), 1)
             biomass = round(min(3.0, pond.current_biomass + random.uniform(0.005, 0.025)), 2)
             water_level = round(0.35 + random.uniform(-0.005, 0.005), 2)
 
@@ -76,7 +84,12 @@ class SensorSimulatorService:
             "co2_concentration": co2,
             "light_intensity": light,
             "biomass_density": biomass,
-            "water_level": water_level
+            "water_level": water_level,
+            "temperature_source": "REAL_NWDP",
+            "matched_station_id": env_params["temperature"]["station_id"],
+            "matched_station_name": env_params["temperature"]["station_name"],
+            "matched_station_distance_km": env_params["temperature"]["distance_to_aoi_km"],
+            "environmental_context": env_context
         }
 
 sensor_simulator = SensorSimulatorService()

@@ -1,0 +1,67 @@
+{
+  "dataset_name": "NWDP Gujarat Temperature Telemetry",
+  "ingested_at": "2026-09-12T17:55:56.936730+00:00",
+  "total_records": 25000,
+  "normalized_records_exported": 25000,
+  "columns_processed": [
+    "station_code",
+    "station_name",
+    "latitude",
+    "longitude",
+    "observation_timestamp",
+    "timestamp_iso",
+    "dt",
+    "air_temperature_c",
+    "rainfall_mm",
+    "solar_radiation_w_m2",
+    "relative_humidity_pct"
+  ],
+  "date_range": {
+    "start": "2026-01-01T00:00:00Z",
+    "end": "2026-07-28T07:00:00Z"
+  },
+  "spatial_aoi": {
+    "name": "BioCarbonMRV Gujarat Demonstration Farm (ALG-001)",
+    "latitude": 23.21,
+    "longitude": 72.63
+  },
+  "matched_nearest_station": {
+    "station_id": "NWDP-GJ-001",
+    "station_name": "Gandhinagar Hydro-Met Station",
+    "latitude": 23.22,
+    "longitude": 72.65,
+    "distance_km": 2.33
+  },
+  "all_stations": [
+    {
+      "station_id": "NWDP-GJ-001",
+      "station_name": "Gandhinagar Hydro-Met Station",
+      "latitude": 23.22,
+      "longitude": 72.65
+    },
+    {
+      "station_id": "NWDP-GJ-002",
+      "station_name": "Ahmedabad Weather Observatory",
+      "latitude": 23.0225,
+      "longitude": 72.5714
+    },
+    {
+      "station_id": "NWDP-GJ-003",
+      "station_name": "Bhavnagar Coastal Met Station",
+      "latitude": 21.7645,
+      "longitude": 72.1519
+    },
+    {
+      "station_id": "NWDP-GJ-004",
+      "station_name": "Rajkot Inland Sensor Node",
+      "latitude": 22.3039,
+      "longitude": 70.8022
+    },
+    {
+      "station_id": "NWDP-GJ-005",
+      "station_name": "Surat Deltaic Monitoring Station",
+      "latitude": 21.1702,
+      "longitude": 72.8311
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "ingested_at": "2026-09-12T17:58:51.613984+00:00",
+  "total_canonical_records": 100000,
+  "parameters_summary": {
+    "temperature": {
+      "row_count": 25000,
+      "station_count": 5,
+      "date_range_start": "2026-01-01T00:00:00Z",
+      "date_range_end": "2026-07-28T07:00:00Z",
+      "nearest_station": {
+        "station_id": "NWDP-GJ-001",
+        "station_name": "Gandhinagar Hydro-Met Station",
+        "latitude": 23.22,
+        "longitude": 72.65,
+        "distance_km": 2.33
+      }
+    },
+    "solar_radiation": {
+      "row_count": 25000,
+      "station_count": 5,
+      "date_range_start": "2026-01-01T00:00:00Z",
+      "date_range_end": "2026-07-28T07:00:00Z",
+      "nearest_station": {
+        "station_id": "NWDP-GJ-001",
+        "station_name": "Gandhinagar Hydro-Met Station",
+        "latitude": 23.22,
+        "longitude": 72.65,
+        "distance_km": 2.33
+      }
+    },
+    "rainfall": {
+      "row_count": 25000,
+      "station_count": 5,
+      "date_range_start": "2026-01-01T00:00:00Z",
+      "date_range_end": "2026-07-28T07:00:00Z",
+      "nearest_station": {
+        "station_id": "NWDP-GJ-001",
+        "station_name": "Gandhinagar Hydro-Met Station",
+        "latitude": 23.22,
+        "longitude": 72.65,
+        "distance_km": 2.33
+      }
+    },
+    "relative_humidity": {
+      "row_count": 25000,
+      "station_count": 5,
+      "date_range_start": "2026-01-01T00:00:00Z",
+      "date_range_end": "2026-07-28T07:00:00Z",
+      "nearest_station": {
+        "station_id": "NWDP-GJ-001",
+        "station_name": "Gandhinagar Hydro-Met Station",
+        "latitude": 23.22,
+        "longitude": 72.65,
+        "distance_km": 2.33
+      }
+    }
+  },
+  "aoi": {
+    "name": "BioCarbonMRV Gujarat Demonstration AOI (ALG-001)",
+    "latitude": 23.21,
+    "longitude": 72.63
+  }
+}
