@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  Home,
-  LayoutGrid, 
   Building2, 
-  Droplet, 
   Activity, 
   BarChart3, 
-  FileText, 
   AlertTriangle, 
   Box, 
   Settings, 
@@ -25,48 +21,51 @@ export const BioCarbonSidebar: React.FC<BioCarbonSidebarProps> = ({
 }) => {
   const [darkMode, setDarkMode] = useState(true);
 
+  // Dedicated sidebar tools (duplicate top navbar tabs removed)
   const menuItems = [
-    { id: 'landing', label: 'Landing Page', icon: Home },
-    { id: 'dashboard', label: 'Overview', icon: LayoutGrid },
-    { id: 'farms', label: 'Farms', icon: Building2 },
-    { id: 'farm_map', label: 'Ponds', icon: Droplet },
-    { id: 'live_data', label: 'Live Data', icon: Activity },
+    { id: 'farms', label: 'Farm Facilities', icon: Building2 },
+    { id: 'live_data', label: 'Live Telemetry', icon: Activity },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'alerts', label: 'Alerts', icon: AlertTriangle },
-    { id: 'simulation', label: 'Simulation', icon: Box },
+    { id: 'alerts', label: 'Anomaly Alerts', icon: AlertTriangle },
+    { id: 'simulation', label: 'Scenario Simulator', icon: Box },
   ];
 
   return (
     <aside className="w-56 h-[calc(100vh-60px)] bg-[#080b11] border-r border-slate-800/80 p-3 flex flex-col justify-between sticky top-[60px] z-40 select-none flex-shrink-0">
       
-      {/* Upper Navigation Menu List */}
-      <div className="space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id || (activeTab === 'dashboard' && item.id === 'dashboard');
+      {/* Upper Sidebar Navigation Menu List */}
+      <div>
+        <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest px-3 block mb-2">
+          Platform Tools
+        </span>
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => {
-                if (item.id === 'farms' || item.id === 'live_data' || item.id === 'analytics' || item.id === 'alerts' || item.id === 'simulation') {
-                  setActiveTab('dashboard');
-                } else {
-                  setActiveTab(item.id);
-                }
-              }}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                isActive
-                  ? 'bg-gradient-to-r from-purple-900/80 to-indigo-900/90 text-white border border-purple-500/40 shadow-lg shadow-purple-900/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#0f1524]/60'
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-purple-300' : 'text-slate-400'}`} />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+        <div className="space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.id === 'farms' || item.id === 'live_data' || item.id === 'analytics' || item.id === 'alerts' || item.id === 'simulation') {
+                    setActiveTab('dashboard');
+                  } else {
+                    setActiveTab(item.id);
+                  }
+                }}
+                className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive
+                    ? 'bg-gradient-to-r from-purple-900/80 to-indigo-900/90 text-white border border-purple-500/40 shadow-lg shadow-purple-900/20'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#0f1524]/60'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-purple-300' : 'text-slate-400'}`} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Bottom Controls & Callout Card */}
