@@ -4,8 +4,9 @@ import type { Pond } from '../types';
 
 interface DemoScenarioWalkerProps {
   setActiveTab: (tab: string) => void;
-  onSelectPond: (pond: Pond) => void;
+  onSelectPond: (pond: Pond | null) => void;
   onOpenEvidence: (pondId?: string) => void;
+  onCloseModals?: () => void;
   ponds: Pond[];
 }
 
@@ -13,6 +14,7 @@ export const DemoScenarioWalker: React.FC<DemoScenarioWalkerProps> = ({
   setActiveTab,
   onSelectPond,
   onOpenEvidence,
+  onCloseModals,
   ponds
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -22,17 +24,24 @@ export const DemoScenarioWalker: React.FC<DemoScenarioWalkerProps> = ({
     {
       title: "Step 1: Dashboard Overview",
       desc: "Observe top KPIs: CO₂ Captured Today (78.4 kg), Monthly (2.31 tonnes), MRV Confidence (91%).",
-      action: () => setActiveTab('dashboard')
+      action: () => {
+        onCloseModals?.();
+        setActiveTab('dashboard');
+      }
     },
     {
       title: "Step 2: Farm Map & Digital Twin",
       desc: "View 6 cultivation ponds. Notice Pond 04 is highlighted in RED (Critical Anomaly).",
-      action: () => setActiveTab('farm_map')
+      action: () => {
+        onCloseModals?.();
+        setActiveTab('farm_map');
+      }
     },
     {
       title: "Step 3: Inspect Pond 04",
       desc: "Click Pond 04. Observe 31% biomass decline, elevated pH (9.3), and thermal spike (31.8°C).",
       action: () => {
+        onCloseModals?.();
         setActiveTab('farm_map');
         const p04 = ponds.find(p => p.pond_id === 'P04') || ponds[0];
         onSelectPond(p04);
@@ -42,6 +51,8 @@ export const DemoScenarioWalker: React.FC<DemoScenarioWalkerProps> = ({
       title: "Step 4: AI Anomaly Diagnosis",
       desc: "Inspect AI Diagnosis card: 'Productivity decline caused by pH + temp stress. Estimated capture loss: 7.3 kg/day'.",
       action: () => {
+        onCloseModals?.();
+        setActiveTab('farm_map');
         const p04 = ponds.find(p => p.pond_id === 'P04') || ponds[0];
         onSelectPond(p04);
       }
@@ -49,17 +60,26 @@ export const DemoScenarioWalker: React.FC<DemoScenarioWalkerProps> = ({
     {
       title: "Step 5: Multi-Source Evidence",
       desc: "Open evidence view. Compare Sensor (1.42 g/L), Image (1.48 g/L), ML (1.44 g/L) cross-source agreement.",
-      action: () => onOpenEvidence('P04')
+      action: () => {
+        onCloseModals?.();
+        onOpenEvidence('P04');
+      }
     },
     {
       title: "Step 6: MRV Carbon Report",
       desc: "Open report section. Verify 2.31 tonnes CO₂ capture estimate and 91% verification confidence.",
-      action: () => setActiveTab('reports')
+      action: () => {
+        onCloseModals?.();
+        setActiveTab('reports');
+      }
     },
     {
       title: "Step 7: Digital Carbon Passport",
       desc: "Generate polished Digital Carbon Passport report with audit trail checkmarks.",
-      action: () => setActiveTab('passport')
+      action: () => {
+        onCloseModals?.();
+        setActiveTab('passport');
+      }
     }
   ];
 

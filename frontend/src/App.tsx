@@ -87,10 +87,33 @@ export function App() {
     return () => clearInterval(interval);
   }, [isSimulating, wsStatus]);
 
-  const handleOpenEvidence = (pondId?: string) => {
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    // Immediately dismiss any active modal/twin when navigating between tabs
+    setSelectedPond(null);
+    setIsEvidenceOpen(false);
+  };
+
+  const handleOpenEvidence = (pondId?: string, closeTwin = false) => {
     if (pondId) setEvidencePondId(pondId);
+    if (closeTwin) setSelectedPond(null);
     setIsEvidenceOpen(true);
   };
+
+  // Universal Escape key safeguard for all active overlays
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isEvidenceOpen) {
+          setIsEvidenceOpen(false);
+        } else if (selectedPond) {
+          setSelectedPond(null);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [isEvidenceOpen, selectedPond]);
 
   return (
     <div className={`min-h-screen bg-dark-olive-algae text-slate-100 font-sans overflow-x-hidden ${activeTab !== 'landing' ? 'pb-24' : ''}`}>
@@ -99,7 +122,7 @@ export function App() {
       {activeTab !== 'landing' && (
         <BioCarbonNavbar
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
           isSimulating={isSimulating}
           setIsSimulating={setIsSimulating}
           wsStatus={wsStatus}
@@ -108,14 +131,14 @@ export function App() {
 
       {/* Main Body View */}
       {activeTab === 'landing' ? (
-        <LandingPage onEnterPlatform={() => setActiveTab('dashboard')} />
+        <LandingPage onEnterPlatform={() => handleTabChange('dashboard')} />
       ) : (
         <div className="flex w-full min-h-[calc(100vh-60px)]">
           
           {/* Left Vertical Sidebar */}
           <BioCarbonSidebar
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
           />
 
           {/* Main Dashboard Workspace */}
@@ -208,7 +231,7 @@ export function App() {
         <PondDigitalTwin
           pond={ponds.find((p) => p.pond_id === selectedPond.pond_id) || selectedPond}
           onClose={() => setSelectedPond(null)}
-          onOpenEvidence={(pId) => handleOpenEvidence(pId)}
+          onOpenEvidence={(pId) => handleOpenEvidence(pId, true)}
         />
       )}
 
@@ -223,9 +246,13 @@ export function App() {
       {/* Demo Scenario Interactive Walker Bar (hidden on landing page) */}
       {activeTab !== 'landing' && (
         <DemoScenarioWalker
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
           onSelectPond={setSelectedPond}
-          onOpenEvidence={handleOpenEvidence}
+          onOpenEvidence={(pId) => handleOpenEvidence(pId, true)}
+          onCloseModals={() => {
+            setSelectedPond(null);
+            setIsEvidenceOpen(false);
+          }}
           ponds={ponds}
         />
       )}

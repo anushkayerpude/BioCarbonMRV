@@ -72,6 +72,24 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
     loadPondData();
   }, [pond, timeRange]);
 
+  // Keyboard Escape listener & body scroll lock
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose]);
+
   if (!pond) return null;
 
   const isCritical = pond.status === 'CRITICAL';
@@ -85,22 +103,24 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
   const proteinPct = currentPh > 8.8 ? 32.0 : 52.0;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#0a0f0a] border border-[#283618]/90 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative p-6 lg:p-8 space-y-6">
+    <div 
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div 
+        className="bg-[#0a0f0a] border border-[#283618]/90 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-[#182313] text-slate-400 hover:text-white hover:bg-[#283618] transition-all"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Header Title */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#283618]/80 pb-5">
+        {/* Sticky Header with Title and Close Button (Never scrolls away) */}
+        <div className="sticky top-0 z-30 bg-[#0a0f0a]/95 backdrop-blur-xl border-b border-[#283618]/80 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center space-x-3">
-              <h2 className="text-2xl font-bold text-white font-mono">{pond.name} Digital Twin</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-white font-mono">{pond.name} Digital Twin</h2>
               <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border ${
                 isCritical
                   ? 'bg-rose-950 text-rose-300 border-rose-700 animate-pulse'
@@ -111,19 +131,34 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
                 {pond.status}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-400 mt-0.5">
               Raceway Unit • Area: {pond.area} ha • Depth: {pond.depth} m • Species: {pond.species}
             </p>
           </div>
 
-          <button
-            onClick={() => onOpenEvidence(pond.pond_id)}
-            className="flex items-center space-x-2 px-4 py-2 bg-[#84a948] hover:bg-[#99b83c] text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#84a948]/25 cursor-pointer"
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Cross-Source Evidence</span>
-          </button>
+          <div className="flex items-center space-x-2.5 self-end sm:self-center">
+            <button
+              onClick={() => onOpenEvidence(pond.pond_id)}
+              className="flex items-center space-x-2 px-3.5 py-2 bg-[#84a948] hover:bg-[#99b83c] text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#84a948]/25 cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Cross-Source Evidence</span>
+            </button>
+
+            {/* Prominent High-Visibility Close Button */}
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl bg-[#182313] text-slate-300 hover:text-white hover:bg-[#283618] border border-[#283618] transition-all cursor-pointer flex items-center justify-center"
+              title="Close Digital Twin (Esc)"
+              aria-label="Close Digital Twin"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
+
+        {/* Scrollable Content Body */}
+        <div className="p-6 lg:p-8 space-y-6 overflow-y-auto flex-1">
 
         {/* Key State Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -288,6 +323,34 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
           </div>
         </div>
 
+        {/* Bottom Action Footer Bar */}
+        <div className="pt-4 mt-2 border-t border-[#283618]/80 flex flex-wrap items-center justify-between gap-3 sticky bottom-0 bg-[#0a0f0a]/95 backdrop-blur-md p-4 -mx-6 lg:-mx-8 -mb-6 lg:-mb-8 rounded-b-3xl">
+          <div className="flex items-center space-x-2 text-xs text-slate-400 font-mono">
+            <span>Press</span>
+            <kbd className="px-2 py-0.5 rounded bg-[#182313] border border-[#283618] text-[#d9ed92] text-[10px] font-bold shadow-inner">
+              Esc
+            </kbd>
+            <span>or click outside to cancel</span>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={onClose}
+              className="px-5 py-2.5 rounded-xl bg-[#182313] hover:bg-[#283618] text-slate-300 hover:text-white border border-[#283618] text-xs font-bold transition-all cursor-pointer shadow-md"
+            >
+              Close Digital Twin
+            </button>
+            <button
+              onClick={() => onOpenEvidence(pond.pond_id)}
+              className="flex items-center space-x-2 px-5 py-2.5 bg-[#84a948] hover:bg-[#99b83c] text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#84a948]/25 cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Inspect Evidence</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
       </div>
     </div>
   );

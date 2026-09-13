@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Bell, ChevronDown, Home, Activity, Layers, Compass, ShieldCheck, FileText } from 'lucide-react';
 
 interface BioCarbonNavbarProps {
@@ -20,6 +20,7 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
   const [selectedLocation, setSelectedLocation] = useState('Gujarat Algae Farm');
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const locationRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const updateClock = () => {
@@ -32,6 +33,31 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
     const interval = setInterval(updateClock, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Close location dropdown on outside click or Escape key
+  useEffect(() => {
+    if (!isLocationOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (locationRef.current && !locationRef.current.contains(e.target as Node)) {
+        setIsLocationOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsLocationOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isLocationOpen]);
 
   const locations = [
     'Gujarat Algae Farm',
@@ -117,7 +143,7 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
         </div>
 
         {/* Location Dropdown Pill */}
-        <div className="relative hidden sm:block">
+        <div ref={locationRef} className="relative hidden sm:block">
           <button
             onClick={() => setIsLocationOpen(!isLocationOpen)}
             className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#10170d] border border-[#283618] text-xs text-slate-200 hover:border-[#708238]/60 transition-all font-medium"

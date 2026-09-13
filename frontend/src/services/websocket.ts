@@ -47,6 +47,8 @@ export function useTelemetryWebSocket(onFrameReceived?: (frame: TelemetryFrame) 
     onFrameRef.current = onFrameReceived;
   }, [onFrameReceived]);
 
+  const connectRef = useRef<() => void>(() => {});
+
   const connect = useCallback(() => {
     if (wsRef.current && (wsRef.current.readyState === WebSocket.CONNECTING || wsRef.current.readyState === WebSocket.OPEN)) {
       return;
@@ -89,7 +91,7 @@ export function useTelemetryWebSocket(onFrameReceived?: (frame: TelemetryFrame) 
         if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
         reconnectTimerRef.current = setTimeout(() => {
           if (isMountedRef.current) {
-            connect();
+            connectRef.current();
           }
         }, 3000);
       };
@@ -99,9 +101,11 @@ export function useTelemetryWebSocket(onFrameReceived?: (frame: TelemetryFrame) 
     }
   }, []);
 
+  connectRef.current = connect;
+
   useEffect(() => {
     isMountedRef.current = true;
-    connect();
+    connectRef.current();
 
     return () => {
       isMountedRef.current = false;
