@@ -69,61 +69,80 @@ async def background_sensor_simulation_loop():
         try:
             await asyncio.sleep(3.5)
             db = SessionLocal()
-            ponds = db.query(Pond).all()
-            
-            # Fetch latest NWDP environmental context
-            env_context = environmental_pipeline.get_environmental_context()
-            
-            pond_payloads = []
-            for pond in ponds:
-                reading_dict = sensor_simulator.generate_live_reading(db, pond)
+            try:
+                ponds = db.query(Pond).all()
                 
-                # Compute anomaly diagnosis
-                is_critical = (pond.status == "CRITICAL")
-                anomaly_diag = anomaly_detector.analyze_pond_reading(pond.pond_id, reading_dict)
+                # Fetch latest NWDP environmental context
+                env_context = environmental_pipeline.get_environmental_context()
                 
-                # Compute biomass fusion estimate
-                sensor_est = reading_dict["biomass_density"]
-                img_analysis = image_service.process_pond_imagery(pond.pond_id, sensor_est, is_critical)
-                ml_est, ml_conf = biomass_ml_model.predict(reading_dict)
-                fused_biomass = fusion_engine.fuse_biomass(sensor_est, img_analysis["estimated_biomass"], ml_est)
+                pond_payloads = []
+                for pond in ponds:
+                    reading_dict = sensor_simulator.generate_live_reading(db, pond)
+                    
+                    # Compute anomaly diagnosis
+                    is_critical = (pond.status == "CRITICAL")
+                    anomaly_diag = anomaly_detector.analyze_pond_reading(pond.pond_id, reading_dict)
+                    
+                    # Compute biomass fusion estimate
+                    sensor_est = reading_dict["biomass_density"]
+                    img_analysis = image_service.process_pond_imagery(pond.pond_id, sensor_est, is_critical)
+                    ml_est, ml_conf = biomass_ml_model.predict(reading_dict)
+                    fused_biomass = fusion_engine.fuse_biomass(sensor_est, img_analysis["estimated_biomass"], ml_est)
+                    
+                    # Compute CO2 sequestration estimate with real pond sensor values
+                    co2_calc = co2_engine.calculate_pond_co2(
+                        pond.area,
+                        pond.depth,
+                        pond.baseline_biomass,
+                        pond.current_biomass,
+                        ph=reading_dict["ph"],
+                        temperature=reading_dict["temperature"],
+                        dissolved_oxygen=reading_dict["dissolved_oxygen"]
+                    )
+                    
+                    # Compute verification confidence
+                    verification_calc = verification_engine.compute_verification(
+                        sensor_est=sensor_est,
+                        image_est=img_analysis["estimated_biomass"],
+                        ml_est=ml_est,
+                        final_biomass=fused_biomass["final_biomass"],
+                        is_anomaly=is_critical
+                    )
+                    
+                    pond_payloads.append({
+                        "pond_id": pond.pond_id,
+                        "name": pond.name,
+                        "status": pond.status,
+                        "sensor_values": reading_dict,
+                        "nwdp_environmental_context": env_context,
+                        "anomaly_status": anomaly_diag,
+                        "biomass_estimate": fused_biomass,
+                        "co2_estimate": co2_calc,
+                        "verification_confidence": verification_calc
+                    })
                 
-                # Compute CO2 sequestration estimate
-                co2_calc = co2_engine.calculate_pond_co2(pond.area, pond.depth, pond.baseline_biomass, pond.current_biomass)
-                
-                # Compute verification confidence
-                verification_calc = verification_engine.compute_verification(
-                    sensor_est=sensor_est,
-                    image_est=img_analysis["estimated_biomass"],
-                    ml_est=ml_est,
-                    final_biomass=fused_biomass["final_biomass"],
-                    is_anomaly=is_critical
+                # Compute farm-level aggregates for real-time Executive KPIs
+                farm_co2 = co2_engine.calculate_farm_total_co2([p["co2_estimate"] for p in pond_payloads])
+                total_current_biomass = sum(p["co2_estimate"]["current_biomass_kg"] for p in pond_payloads)
+                farm_co2["current_biomass_kg"] = round(total_current_biomass, 2)
+                farm_co2["farm_id"] = "ALG-001"
+
+                num_ponds = max(1, len(pond_payloads))
+                avg_verification = round(
+                    sum(p["verification_confidence"]["overall_confidence_pct"] for p in pond_payloads) / num_ponds,
+                    1
                 )
-                
-                pond_payloads.append({
-                    "pond_id": pond.pond_id,
-                    "name": pond.name,
-                    "status": pond.status,
-                    "sensor_values": reading_dict,
-                    "nwdp_environmental_context": env_context,
-                    "anomaly_status": anomaly_diag,
-                    "biomass_estimate": fused_biomass,
-                    "co2_estimate": co2_calc,
-                    "verification_confidence": verification_calc
-                })
-            
-            # Compute farm-level aggregates for real-time Executive KPIs
-            farm_co2 = co2_engine.calculate_farm_total_co2([p["co2_estimate"] for p in pond_payloads])
-            total_current_biomass = sum(p["co2_estimate"]["current_biomass_kg"] for p in pond_payloads)
-            farm_co2["current_biomass_kg"] = round(total_current_biomass, 2)
-            farm_co2["farm_id"] = "ALG-001"
-
-            avg_verification = round(
-                sum(p["verification_confidence"]["overall_confidence_pct"] for p in pond_payloads) / max(1, len(pond_payloads)),
-                1
-            )
-
-            db.close()
+                farm_verification = {
+                    "overall_confidence_pct": avg_verification,
+                    "sensor_agreement_pct": round(sum(p["verification_confidence"]["sensor_agreement_pct"] for p in pond_payloads) / num_ponds, 1),
+                    "image_agreement_pct": round(sum(p["verification_confidence"]["image_agreement_pct"] for p in pond_payloads) / num_ponds, 1),
+                    "ml_confidence_pct": round(sum(p["verification_confidence"]["ml_confidence_pct"] for p in pond_payloads) / num_ponds, 1),
+                    "data_completeness_pct": round(sum(p["verification_confidence"]["data_completeness_pct"] for p in pond_payloads) / num_ponds, 1),
+                    "historical_consistency_pct": round(sum(p["verification_confidence"]["historical_consistency_pct"] for p in pond_payloads) / num_ponds, 1),
+                    "evidence_checklist": pond_payloads[0]["verification_confidence"]["evidence_checklist"] if pond_payloads else []
+                }
+            finally:
+                db.close()
             
             # Broadcast real-time telemetry frame to WebSocket clients
             telemetry_event = {
@@ -132,9 +151,7 @@ async def background_sensor_simulation_loop():
                 "nwdp_environmental_context": env_context,
                 "ponds": pond_payloads,
                 "farm_carbon": farm_co2,
-                "farm_verification": {
-                    "overall_confidence_pct": avg_verification
-                }
+                "farm_verification": farm_verification
             }
             await ws_manager.broadcast(telemetry_event)
 

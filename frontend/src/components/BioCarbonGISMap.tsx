@@ -10,6 +10,73 @@ interface BioCarbonGISMapProps {
   selectedPondId?: string;
 }
 
+// Gujarat Algae Farm Center Coordinates (Ahmedabad, Gujarat)
+const farmCenter: [number, number] = [72.6300, 23.2100];
+
+// 6 Raceway Pond GeoJSON Polygon Coordinates
+const pondFeatures = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      properties: { id: 'P01', name: 'Raceway Pond 01', status: 'HEALTHY' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[[72.6275, 23.2120], [72.6295, 23.2122], [72.6298, 23.2105], [72.6278, 23.2103], [72.6275, 23.2120]]]
+      }
+    },
+    {
+      type: 'Feature',
+      properties: { id: 'P02', name: 'Raceway Pond 02', status: 'HEALTHY' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[[72.6305, 23.2123], [72.6325, 23.2125], [72.6328, 23.2108], [72.6308, 23.2106], [72.6305, 23.2123]]]
+      }
+    },
+    {
+      type: 'Feature',
+      properties: { id: 'P03', name: 'Raceway Pond 03', status: 'HEALTHY' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[[72.6278, 23.2098], [72.6298, 23.2100], [72.6301, 23.2083], [72.6281, 23.2081], [72.6278, 23.2098]]]
+      }
+    },
+    {
+      type: 'Feature',
+      properties: { id: 'P04', name: 'Raceway Pond 04', status: 'CRITICAL' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[[72.6308, 23.2101], [72.6328, 23.2103], [72.6331, 23.2086], [72.6311, 23.2084], [72.6308, 23.2101]]]
+      }
+    },
+    {
+      type: 'Feature',
+      properties: { id: 'P05', name: 'Raceway Pond 05', status: 'HEALTHY' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[[72.6281, 23.2076], [72.6301, 23.2078], [72.6304, 23.2061], [72.6284, 23.2059], [72.6281, 23.2076]]]
+      }
+    },
+    {
+      type: 'Feature',
+      properties: { id: 'P06', name: 'Raceway Pond 06', status: 'WARNING' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[[72.6311, 23.2079], [72.6331, 23.2081], [72.6334, 23.2064], [72.6314, 23.2062], [72.6311, 23.2079]]]
+      }
+    }
+  ]
+};
+
+const nodePositions: { id: string; coords: [number, number] }[] = [
+  { id: 'P01', coords: [72.6286, 23.2112] },
+  { id: 'P02', coords: [72.6316, 23.2115] },
+  { id: 'P03', coords: [72.6289, 23.2090] },
+  { id: 'P04', coords: [72.6319, 23.2093] },
+  { id: 'P05', coords: [72.6292, 23.2068] },
+  { id: 'P06', coords: [72.6322, 23.2071] }
+];
+
 export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
   ponds,
   onSelectPond,
@@ -20,73 +87,13 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const [mapMode, setMapMode] = useState<'map' | 'satellite' | 'bhuvan' | '3d'>('satellite');
   const [mapLoaded, setMapLoaded] = useState(false);
+  const pondsRef = useRef(ponds);
+  const onSelectPondRef = useRef(onSelectPond);
 
-  // Gujarat Algae Farm Center Coordinates (Ahmedabad, Gujarat)
-  const farmCenter: [number, number] = [72.6300, 23.2100];
-
-  // 6 Raceway Pond GeoJSON Polygon Coordinates
-  const pondFeatures = {
-    type: 'FeatureCollection',
-    features: [
-      {
-        type: 'Feature',
-        properties: { id: 'P01', name: 'Raceway Pond 01', status: 'HEALTHY' },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [[[72.6275, 23.2120], [72.6295, 23.2122], [72.6298, 23.2105], [72.6278, 23.2103], [72.6275, 23.2120]]]
-        }
-      },
-      {
-        type: 'Feature',
-        properties: { id: 'P02', name: 'Raceway Pond 02', status: 'HEALTHY' },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [[[72.6305, 23.2123], [72.6325, 23.2125], [72.6328, 23.2108], [72.6308, 23.2106], [72.6305, 23.2123]]]
-        }
-      },
-      {
-        type: 'Feature',
-        properties: { id: 'P03', name: 'Raceway Pond 03', status: 'HEALTHY' },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [[[72.6278, 23.2098], [72.6298, 23.2100], [72.6301, 23.2083], [72.6281, 23.2081], [72.6278, 23.2098]]]
-        }
-      },
-      {
-        type: 'Feature',
-        properties: { id: 'P04', name: 'Raceway Pond 04', status: 'CRITICAL' },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [[[72.6308, 23.2101], [72.6328, 23.2103], [72.6331, 23.2086], [72.6311, 23.2084], [72.6308, 23.2101]]]
-        }
-      },
-      {
-        type: 'Feature',
-        properties: { id: 'P05', name: 'Raceway Pond 05', status: 'HEALTHY' },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [[[72.6281, 23.2076], [72.6301, 23.2078], [72.6304, 23.2061], [72.6284, 23.2059], [72.6281, 23.2076]]]
-        }
-      },
-      {
-        type: 'Feature',
-        properties: { id: 'P06', name: 'Raceway Pond 06', status: 'WARNING' },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [[[72.6311, 23.2079], [72.6331, 23.2081], [72.6334, 23.2064], [72.6314, 23.2062], [72.6311, 23.2079]]]
-        }
-      }
-    ]
-  };
-
-  const nodePositions: { id: string; coords: [number, number] }[] = [
-    { id: 'P01', coords: [72.6286, 23.2112] },
-    { id: 'P02', coords: [72.6316, 23.2115] },
-    { id: 'P03', coords: [72.6289, 23.2090] },
-    { id: 'P04', coords: [72.6319, 23.2093] },
-    { id: 'P05', coords: [72.6292, 23.2068] },
-    { id: 'P06', coords: [72.6322, 23.2071] }
-  ];
+  useEffect(() => {
+    pondsRef.current = ponds;
+    onSelectPondRef.current = onSelectPond;
+  }, [ponds, onSelectPond]);
 
   // Initialize MapLibre GL Map with authentic real raster basemap tiles
   useEffect(() => {
@@ -220,8 +227,8 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
         if (e.features && e.features.length > 0) {
           const feature = e.features[0];
           const pId = feature.properties?.id;
-          const foundPond = ponds.find((p) => p.pond_id === pId);
-          if (foundPond) onSelectPond(foundPond);
+          const foundPond = pondsRef.current.find((p) => p.pond_id === pId);
+          if (foundPond) onSelectPondRef.current(foundPond);
         }
       });
 
@@ -289,7 +296,7 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
 
       markersRef.current.push(marker);
     });
-  }, [ponds, selectedPondId, mapLoaded]);
+  }, [ponds, selectedPondId, mapLoaded, onSelectPond]);
 
   // Handle View Mode Switching (Map, Satellite, Bhuvan, 3D)
   const handleViewModeChange = (mode: 'map' | 'satellite' | 'bhuvan' | '3d') => {

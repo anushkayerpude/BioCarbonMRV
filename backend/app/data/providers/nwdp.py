@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional, Tuple
 
 from app.data.normalize import normalize_nwdp_record
-from app.data.spatial import match_nearest_station
+from app.data.spatial import match_nearest_station, haversine_distance
 
 class NWDPDataProvider:
     """
@@ -140,5 +140,40 @@ class NWDPDataProvider:
                 )
             )
         return records
+
+    def find_nearest_station_to_aoi(self, aoi_lat: float = 23.2100, aoi_lon: float = 72.6300) -> Optional[Dict[str, Any]]:
+        stations = self.get_stations_for_parameter("temperature")
+        return match_nearest_station(aoi_lat, aoi_lon, stations)
+
+    def get_stations(self, aoi_lat: float = 23.2100, aoi_lon: float = 72.6300) -> List[Dict[str, Any]]:
+        stations = self.get_stations_for_parameter("temperature")
+        res = []
+        for s in stations:
+            st = dict(s)
+            st["distance_km"] = round(haversine_distance(aoi_lat, aoi_lon, s["latitude"], s["longitude"]), 2)
+            res.append(st)
+        return res
+
+    def get_temperature_at_timestamp(self, station_id: str, target_dt: Optional[datetime] = None) -> Dict[str, Any]:
+        if not self._is_loaded or "temperature" not in self._dataframes:
+            self.load_all()
+        df = self._dataframes["temperature"]
+        df_st = df[df["station_code"] == station_id]
+        if df_st.empty:
+            df_st = df
+        if target_dt is None or target_dt.tzinfo is None:
+            row = df_st.iloc[-1]
+        else:
+            target_naive = target_dt.astimezone(timezone.utc).replace(tzinfo=None)
+            row = df_st.loc[(df_st["dt"] - target_naive).abs().idxmin()]
+        return {
+            "station_id": str(row["station_code"]),
+            "station_name": str(row["station_name"]),
+            "timestamp": str(row["timestamp_iso"]),
+            "parameter": "temperature",
+            "value": round(float(row["air_temperature_c"]), 2),
+            "unit": "°C",
+            "quality_code": str(row.get("quality_code", "PASSED_QC"))
+        }
 
 nwdp_provider = NWDPDataProvider()

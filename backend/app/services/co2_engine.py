@@ -70,7 +70,7 @@ class CO2SequestrationEngine:
         depth_m: float,
         baseline_biomass_g_per_l: float,
         current_biomass_g_per_l: float,
-        days: float = 1.0,
+        days: float = 30.0,
         ph: float = 8.2,
         temperature: float = 28.4,
         dissolved_oxygen: float = 7.4
@@ -92,8 +92,8 @@ class CO2SequestrationEngine:
         gross_co2_captured_kg = carbon_fixed_kg * settings.CO2_TO_CARBON_RATIO
 
         # Net Carbon Calculation: Operational Emissions Subtraction
-        # Paddlewheels, aeration blowers, dosing pumps consume ~0.15 kWh per m³ per day
-        operational_kwh = volume_m3 * 0.15 * max(1.0, days)
+        # Paddlewheels, aeration blowers, dosing pumps consume ~0.01 kWh per m³ per day for shallow raceway channels
+        operational_kwh = volume_m3 * 0.01 * max(1.0, days)
         # Grid Emission Factor: 0.42 kg CO2 / kWh
         operational_co2_emitted_kg = operational_kwh * 0.42
 
@@ -101,7 +101,7 @@ class CO2SequestrationEngine:
         efficiency_pct = round((net_co2_removed_kg / max(1e-6, gross_co2_captured_kg)) * 100.0, 1)
 
         daily_net_co2_rate_kg = net_co2_removed_kg / max(1.0, days)
-        monthly_net_projection_tonnes = (daily_net_co2_rate_kg * 30.0) / 1000.0
+        monthly_net_projection_tonnes = round(net_co2_removed_kg / 1000.0, 3)
 
         return {
             "volume_m3": round(volume_m3, 2),
@@ -131,7 +131,7 @@ class CO2SequestrationEngine:
         
         avg_c_fraction = round(sum(p["dynamic_carbon_fraction"] for p in pond_calculations) / max(1, len(pond_calculations)), 3)
         total_daily_net_rate = sum(p["daily_co2_rate_kg"] for p in pond_calculations)
-        monthly_net_tonnes = (total_daily_net_rate * 30.0) / 1000.0
+        monthly_net_tonnes = round(total_net_co2 / 1000.0, 3)
 
         return {
             "biomass_gain_kg": round(total_biomass_gain, 2),
@@ -143,7 +143,7 @@ class CO2SequestrationEngine:
             "operational_co2_emitted_kg": round(total_op_emitted, 2),
             "net_co2_removed_kg": round(total_net_co2, 2),
             "daily_co2_rate_kg": round(total_daily_net_rate, 2),
-            "monthly_co2_projection_tonnes": round(monthly_net_tonnes, 3)
+            "monthly_co2_projection_tonnes": monthly_net_tonnes
         }
 
 co2_engine = CO2SequestrationEngine()

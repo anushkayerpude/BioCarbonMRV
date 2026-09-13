@@ -10,6 +10,19 @@ interface FarmMapProps {
   selectedPondId?: string;
 }
 
+// Gujarat Algae Farm Center [Latitude, Longitude]
+const farmCenter: [number, number] = [23.2100, 72.6300];
+
+// 6 Raceway Pond Polygon Coordinates in Leaflet [Lat, Lng] format
+const pondPolygons: { [id: string]: [number, number][] } = {
+  P01: [[23.2120, 72.6275], [23.2122, 72.6295], [23.2105, 72.6298], [23.2103, 72.6278]],
+  P02: [[23.2123, 72.6305], [23.2125, 72.6325], [23.2108, 72.6328], [23.2106, 72.6308]],
+  P03: [[23.2098, 72.6278], [23.2100, 72.6298], [23.2083, 72.6301], [23.2081, 72.6281]],
+  P04: [[23.2101, 72.6308], [23.2103, 72.6328], [23.2086, 72.6331], [23.2084, 72.6311]],
+  P05: [[23.2076, 72.6281], [23.2078, 72.6301], [23.2061, 72.6304], [23.2059, 72.6284]],
+  P06: [[23.2079, 72.6311], [23.2081, 72.6331], [23.2064, 72.6334], [23.2062, 72.6314]]
+};
+
 export const FarmMap: React.FC<FarmMapProps> = ({
   ponds,
   onSelectPond,
@@ -22,19 +35,6 @@ export const FarmMap: React.FC<FarmMapProps> = ({
   const leafletMapRef = useRef<L.Map | null>(null);
   const tileLayersRef = useRef<{ [key: string]: L.TileLayer }>({});
   const polygonGroupRef = useRef<L.FeatureGroup | null>(null);
-
-  // Gujarat Algae Farm Center [Latitude, Longitude]
-  const farmCenter: [number, number] = [23.2100, 72.6300];
-
-  // 6 Raceway Pond Polygon Coordinates in Leaflet [Lat, Lng] format
-  const pondPolygons: { [id: string]: [number, number][] } = {
-    P01: [[23.2120, 72.6275], [23.2122, 72.6295], [23.2105, 72.6298], [23.2103, 72.6278]],
-    P02: [[23.2123, 72.6305], [23.2125, 72.6325], [23.2108, 72.6328], [23.2106, 72.6308]],
-    P03: [[23.2098, 72.6278], [23.2100, 72.6298], [23.2083, 72.6301], [23.2081, 72.6281]],
-    P04: [[23.2101, 72.6308], [23.2103, 72.6328], [23.2086, 72.6331], [23.2084, 72.6311]],
-    P05: [[23.2076, 72.6281], [23.2078, 72.6301], [23.2061, 72.6304], [23.2059, 72.6284]],
-    P06: [[23.2079, 72.6311], [23.2081, 72.6331], [23.2064, 72.6334], [23.2062, 72.6314]]
-  };
 
   // Initialize Real Leaflet Map
   useEffect(() => {
@@ -71,7 +71,7 @@ export const FarmMap: React.FC<FarmMapProps> = ({
     );
 
     tileLayersRef.current = { satellite, street, dark };
-    tileLayersRef.current[activeLayer].addTo(map);
+    satellite.addTo(map);
 
     // Feature group for ponds
     const fg = L.featureGroup().addTo(map);
@@ -164,7 +164,7 @@ export const FarmMap: React.FC<FarmMapProps> = ({
         onSelectPond(pond);
       });
     });
-  }, [ponds, selectedPondId, viewMode]);
+  }, [ponds, selectedPondId, viewMode, onSelectPond]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

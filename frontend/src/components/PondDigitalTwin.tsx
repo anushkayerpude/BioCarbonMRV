@@ -22,17 +22,19 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
   const [history, setHistory] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('7d');
 
+  const pondId = pond?.pond_id;
+
   useEffect(() => {
-    if (!pond) return;
+    if (!pondId) return;
 
     const loadPondData = async () => {
       try {
         const [sData, aData, hData, spData, crData] = await Promise.all([
-          fetchLatestSensor(pond.pond_id),
-          fetchPondAnomaly(pond.pond_id),
-          fetchSensorHistory(pond.pond_id, timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : 30),
-          fetchSpeciesDetection(pond.pond_id),
-          fetchCryptoAnchor(pond.pond_id)
+          fetchLatestSensor(pondId),
+          fetchPondAnomaly(pondId),
+          fetchSensorHistory(pondId, timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : 30),
+          fetchSpeciesDetection(pondId),
+          fetchCryptoAnchor(pondId)
         ]);
 
         setSensor(sData);
@@ -52,7 +54,7 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
           });
           setHistory(chartPoints);
         } else {
-          const isP04 = pond.pond_id === 'P04';
+          const isP04 = pondId === 'P04';
           const points = Array.from({ length: 7 }, (_, i) => {
             const obs = isP04 ? Number((2.4 - i * 0.15).toFixed(2)) : Number((1.8 + i * 0.1).toFixed(2));
             return {
@@ -70,7 +72,7 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
     };
 
     loadPondData();
-  }, [pond, timeRange]);
+  }, [pondId, timeRange]);
 
   // Keyboard Escape listener & body scroll lock
   useEffect(() => {

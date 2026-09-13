@@ -1,4 +1,8 @@
 import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+DEFAULT_DB_PATH = BASE_DIR / "algae_mrv.db"
 
 class Settings:
     PROJECT_NAME: str = "Algae Carbon Intelligence"
@@ -6,7 +10,7 @@ class Settings:
     API_V1_STR: str = "/api/v1"
     
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./algae_mrv.db")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
     
     # MRV Carbon Parameters
     # Default dry biomass carbon fraction (kg Carbon / kg Biomass)

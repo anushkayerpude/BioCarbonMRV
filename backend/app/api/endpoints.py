@@ -330,11 +330,19 @@ def get_pond_carbon_sequestration(pond_id: str, db: Session = Depends(get_db)):
     if not pond:
         raise HTTPException(status_code=404, detail="Pond not found")
     
+    latest = db.query(SensorReading).filter_by(pond_id=pond_id).order_by(SensorReading.timestamp.desc()).first()
+    ph = latest.ph if latest else 8.2
+    temperature = latest.temperature if latest else 28.4
+    dissolved_oxygen = latest.dissolved_oxygen if latest else 7.4
+
     co2_res = co2_engine.calculate_pond_co2(
         area_ha=pond.area,
         depth_m=pond.depth,
         baseline_biomass_g_per_l=pond.baseline_biomass,
-        current_biomass_g_per_l=pond.current_biomass
+        current_biomass_g_per_l=pond.current_biomass,
+        ph=ph,
+        temperature=temperature,
+        dissolved_oxygen=dissolved_oxygen
     )
     co2_res["pond_id"] = pond_id
     return co2_res
@@ -347,7 +355,14 @@ def get_farm_carbon_sequestration(farm_id: str, db: Session = Depends(get_db)):
     
     pond_calcs = []
     for p in ponds:
-        c = co2_engine.calculate_pond_co2(p.area, p.depth, p.baseline_biomass, p.current_biomass)
+        latest = db.query(SensorReading).filter_by(pond_id=p.pond_id).order_by(SensorReading.timestamp.desc()).first()
+        ph = latest.ph if latest else 8.2
+        temperature = latest.temperature if latest else 28.4
+        dissolved_oxygen = latest.dissolved_oxygen if latest else 7.4
+        c = co2_engine.calculate_pond_co2(
+            p.area, p.depth, p.baseline_biomass, p.current_biomass,
+            ph=ph, temperature=temperature, dissolved_oxygen=dissolved_oxygen
+        )
         pond_calcs.append(c)
 
     farm_tot = co2_engine.calculate_farm_total_co2(pond_calcs)
@@ -406,28 +421,31 @@ def get_pond_verification(pond_id: str, db: Session = Depends(get_db)):
 @router.get("/farms/{farm_id}/verification", response_model=VerificationScoreSchema)
 def get_farm_verification(farm_id: str, db: Session = Depends(get_db)):
     ponds = db.query(Pond).filter_by(farm_id=farm_id).all()
+    if not ponds:
+        raise HTTPException(status_code=404, detail="Farm ponds not found")
     verifications = [get_pond_verification(p.pond_id, db=db) for p in ponds]
+    num_v = max(1, len(verifications))
     
-    avg_sensor_ag = sum(v["sensor_agreement_pct"] for v in verifications) / len(verifications)
-    avg_image_ag = sum(v["image_agreement_pct"] for v in verifications) / len(verifications)
-    avg_ml_conf = sum(v["ml_confidence_pct"] for v in verifications) / len(verifications)
-    avg_completeness = sum(v["data_completeness_pct"] for v in verifications) / len(verifications)
-    avg_historical = sum(v["historical_consistency_pct"] for v in verifications) / len(verifications)
-    avg_overall = sum(v["overall_confidence_pct"] for v in verifications) / len(verifications)
+    avg_sensor_ag = sum(v["sensor_agreement_pct"] for v in verifications) / num_v
+    avg_image_ag = sum(v["image_agreement_pct"] for v in verifications) / num_v
+    avg_ml_conf = sum(v["ml_confidence_pct"] for v in verifications) / num_v
+    avg_completeness = sum(v["data_completeness_pct"] for v in verifications) / num_v
+    avg_historical = sum(v["historical_consistency_pct"] for v in verifications) / num_v
+    avg_overall = sum(v["overall_confidence_pct"] for v in verifications) / num_v
 
     return {
         "farm_id": farm_id,
-        "sensor_estimate": round(sum(v["sensor_estimate"] for v in verifications) / len(verifications), 2),
-        "image_estimate": round(sum(v["image_estimate"] for v in verifications) / len(verifications), 2),
-        "ml_estimate": round(sum(v["ml_estimate"] for v in verifications) / len(verifications), 2),
-        "final_biomass": round(sum(v["final_biomass"] for v in verifications) / len(verifications), 2),
+        "sensor_estimate": round(sum(v["sensor_estimate"] for v in verifications) / num_v, 2),
+        "image_estimate": round(sum(v["image_estimate"] for v in verifications) / num_v, 2),
+        "ml_estimate": round(sum(v["ml_estimate"] for v in verifications) / num_v, 2),
+        "final_biomass": round(sum(v["final_biomass"] for v in verifications) / num_v, 2),
         "sensor_agreement_pct": round(avg_sensor_ag, 1),
         "image_agreement_pct": round(avg_image_ag, 1),
         "ml_confidence_pct": round(avg_ml_conf, 1),
         "data_completeness_pct": round(avg_completeness, 1),
         "historical_consistency_pct": round(avg_historical, 1),
         "overall_confidence_pct": round(avg_overall, 1),
-        "evidence_checklist": verifications[0]["evidence_checklist"]
+        "evidence_checklist": verifications[0]["evidence_checklist"] if verifications else []
     }
 
 # ---------------- PASSPORT & REPORTS ----------------
@@ -443,6 +461,8 @@ def get_farm_carbon_passport(farm_id: str, db: Session = Depends(get_db)):
 
     total_biomass_tonnes = round(farm_carbon["current_biomass_kg"] / 1000.0, 2)
     estimated_co2_tonnes = round(farm_carbon["co2_captured_kg"] / 1000.0, 2)
+    net_co2_tonnes = round((farm_carbon.get("net_co2_removed_kg") or farm_carbon["co2_captured_kg"]) / 1000.0, 2)
+    dynamic_c_pct = round((farm_carbon.get("dynamic_carbon_fraction") or 0.514) * 100.0, 1)
 
     return report_generator.generate_carbon_passport(
         farm_name=farm.name,
@@ -453,7 +473,9 @@ def get_farm_carbon_passport(farm_id: str, db: Session = Depends(get_db)):
         average_daily_capture_kg=max(77.0, farm_carbon["daily_co2_rate_kg"]),
         data_completeness_pct=verification["data_completeness_pct"],
         verification_confidence_pct=verification["overall_confidence_pct"],
-        anomalies_count=anomalies_count
+        anomalies_count=anomalies_count,
+        net_co2_removed_tonnes=net_co2_tonnes,
+        dynamic_carbon_pct=dynamic_c_pct
     )
 
 @router.get("/reports/html")

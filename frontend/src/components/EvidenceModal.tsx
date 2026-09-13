@@ -34,7 +34,7 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
       }
     };
     loadEvidence();
-  }, [pondId, wSensor, wImage, wMl]);
+  }, [pondId]);
 
   // Keyboard Escape listener & body scroll lock
   useEffect(() => {
@@ -235,7 +235,7 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
         <div className="bg-[#0a0f0a] rounded-2xl p-4 border border-[#283618]">
           <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Verification Checklist & Audit Trail</h4>
           <ul className="space-y-2 text-xs text-slate-300">
-            {verification?.evidence_checklist.map((item, idx) => (
+            {verification?.evidence_checklist?.map((item, idx) => (
               <li key={idx} className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-[#84a948] flex-shrink-0" />
                 <span>{item}</span>

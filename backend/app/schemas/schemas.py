@@ -130,6 +130,7 @@ class CarbonPassportSchema(BaseModel):
     monitoring_period: str
     total_biomass_tonnes: float
     estimated_co2_captured_tonnes: float
+    net_co2_removed_tonnes: Optional[float] = None
     average_daily_capture_kg: float
     number_of_ponds: int
     data_completeness_pct: float
@@ -137,3 +138,4 @@ class CarbonPassportSchema(BaseModel):
     anomalies_count: int
     evidence_sources: List[str]
     generated_at: datetime
+    dynamic_carbon_pct: Optional[float] = None

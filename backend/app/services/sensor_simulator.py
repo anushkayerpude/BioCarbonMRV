@@ -40,7 +40,8 @@ class SensorSimulatorService:
             turbidity = round(72.0 + random.uniform(-4.0, 4.0), 1)
             co2 = round(390.0 + random.uniform(-15.0, 15.0), 1)
             light = round(max(50.0, 780.0 + random.uniform(-50, 50)), 1)
-            biomass = round(max(1.35, pond.current_biomass + random.uniform(-0.02, 0.01)), 2)
+            target_bio = 1.42
+            biomass = round(max(1.30, min(1.50, target_bio + random.uniform(-0.03, 0.03))), 2)
             water_level = round(0.31 + random.uniform(-0.01, 0.01), 2)
         elif is_p06 and pond.status == "WARNING":
             temp = round(30.6 + random.uniform(-0.3, 0.3), 1)
@@ -49,17 +50,20 @@ class SensorSimulatorService:
             turbidity = round(61.0 + random.uniform(-3.0, 3.0), 1)
             co2 = round(420.0 + random.uniform(-10.0, 10.0), 1)
             light = round(max(50.0, 740.0 + random.uniform(-40, 40)), 1)
-            biomass = round(pond.current_biomass + random.uniform(-0.01, 0.02), 2)
+            target_bio = 1.75
+            biomass = round(max(1.60, min(1.88, target_bio + random.uniform(-0.02, 0.02))), 2)
             water_level = round(0.33 + random.uniform(-0.01, 0.01), 2)
         else:
             temp = real_nwdp_temp
             # Pond autotrophic culture anchors on CPCB source water with photosynthetic buffering
             ph = round(cpcb_ph + random.uniform(-0.15, 0.15), 2)
             do = round(cpcb_do + 0.4 + random.uniform(-0.25, 0.25), 1)
-            turbidity = round(cpcb_turb + (pond.current_biomass * 22.0) + random.uniform(-2.0, 2.0), 1)
+            healthy_targets = {"P01": 2.45, "P02": 2.30, "P03": 2.25, "P05": 2.15}
+            target_bio = healthy_targets.get(pond.pond_id, 2.25)
+            biomass = round(max(1.90, min(2.55, target_bio + random.uniform(-0.02, 0.02))), 2)
+            turbidity = round(cpcb_turb + (biomass * 22.0) + random.uniform(-2.0, 2.0), 1)
             co2 = round(450.0 + random.uniform(-10.0, 10.0), 1)
             light = real_nwdp_solar if real_nwdp_solar > 0 else round(max(0.0, 820.0 * max(0, math.sin((hour - 6) * math.pi / 12.0)) + random.uniform(-20, 20)), 1)
-            biomass = round(min(3.0, pond.current_biomass + random.uniform(0.005, 0.025)), 2)
             water_level = round(0.35 + random.uniform(-0.005, 0.005), 2)
 
         # Update pond current biomass density

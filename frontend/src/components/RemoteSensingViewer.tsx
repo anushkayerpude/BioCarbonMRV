@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Pond } from '../types';
 import { Camera, Sparkles, Satellite } from 'lucide-react';
-import { fetchPondImagery } from '../services/api';
+import { fetchPondImagery, API_BASE_URL } from '../services/api';
 
 interface RemoteSensingViewerProps {
   ponds: Pond[];
@@ -100,7 +100,7 @@ export const RemoteSensingViewer: React.FC<RemoteSensingViewerProps> = ({ ponds 
           <div className="h-80 w-full rounded-2xl border border-slate-800 bg-slate-950 relative overflow-hidden flex items-center justify-center p-4">
             {/* Real Sentinel-2 Multispectral Composite Tile */}
             <img 
-              src={`http://localhost:8000/api/v1/ponds/${selectedPondId}/imagery/tile?layer=${spectralLayer}`}
+              src={`${API_BASE_URL}/ponds/${selectedPondId}/imagery/tile?layer=${spectralLayer}`}
               alt={`Sentinel-2 ${spectralLayer} tile`}
               className="absolute inset-0 w-full h-full object-cover opacity-90 transition-opacity duration-300"
               onError={(e) => {

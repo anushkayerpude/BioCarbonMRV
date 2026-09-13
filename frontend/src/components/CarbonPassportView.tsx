@@ -124,7 +124,7 @@ export const CarbonPassportView: React.FC = () => {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-300">
-            {passport?.evidence_sources.map((src, idx) => (
+            {passport?.evidence_sources?.map((src, idx) => (
               <div key={idx} className="flex items-center space-x-2 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 <span>{src}</span>
@@ -136,7 +136,7 @@ export const CarbonPassportView: React.FC = () => {
       </div>
 
       {/* BIOMASS FATE & PERMANENCE TRACKER MODULE */}
-      <BiomassFateTracker netCo2Kg={41097.5} />
+      <BiomassFateTracker netCo2Kg={passport?.net_co2_removed_tonnes ? passport.net_co2_removed_tonnes * 1000 : 38578.0} />
 
     </div>
   );

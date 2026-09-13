@@ -3,7 +3,7 @@ import {
   Building2, 
   Activity, 
   BarChart3, 
-  AlertTriangle, 
+  FileText, 
   Box, 
   Settings, 
   Moon,
@@ -27,7 +27,7 @@ export const BioCarbonSidebar: React.FC<BioCarbonSidebarProps> = ({
     { id: 'farm_map', label: 'Ponds & Twin', icon: Building2 },
     { id: 'remote_sensing', label: 'Remote Sensing', icon: BarChart3 },
     { id: 'passport', label: 'Carbon Passport', icon: Box },
-    { id: 'reports', label: 'MRV Reports', icon: AlertTriangle },
+    { id: 'reports', label: 'MRV Reports', icon: FileText },
   ];
 
   return (

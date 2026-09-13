@@ -101,14 +101,21 @@ export function useTelemetryWebSocket(onFrameReceived?: (frame: TelemetryFrame) 
     }
   }, []);
 
-  connectRef.current = connect;
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     isMountedRef.current = true;
-    connectRef.current();
+    const initTimer = setTimeout(() => {
+      if (isMountedRef.current) {
+        connect();
+      }
+    }, 0);
 
     return () => {
       isMountedRef.current = false;
+      clearTimeout(initTimer);
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
       if (wsRef.current) {
         wsRef.current.close();

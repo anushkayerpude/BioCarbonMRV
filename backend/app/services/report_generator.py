@@ -18,10 +18,15 @@ class ReportGeneratorService:
         average_daily_capture_kg: float,
         data_completeness_pct: float,
         verification_confidence_pct: float,
-        anomalies_count: int
+        anomalies_count: int,
+        net_co2_removed_tonnes: float = None,
+        dynamic_carbon_pct: float = None
     ) -> Dict:
         passport_id = f"PASSPORT-{uuid.uuid4().hex[:8].upper()}"
         period_str = datetime.now(timezone.utc).strftime("%B %Y")
+
+        net_tonnes = net_co2_removed_tonnes if net_co2_removed_tonnes is not None else estimated_co2_captured_tonnes
+        dyn_c = dynamic_carbon_pct if dynamic_carbon_pct is not None else 51.4
 
         return {
             "passport_id": passport_id,
@@ -30,11 +35,13 @@ class ReportGeneratorService:
             "monitoring_period": period_str,
             "total_biomass_tonnes": round(total_biomass_tonnes, 2),
             "estimated_co2_captured_tonnes": round(estimated_co2_captured_tonnes, 2),
+            "net_co2_removed_tonnes": round(net_tonnes, 2),
             "average_daily_capture_kg": round(average_daily_capture_kg, 1),
             "number_of_ponds": number_of_ponds,
             "data_completeness_pct": round(data_completeness_pct, 1),
             "verification_confidence_pct": round(verification_confidence_pct, 1),
             "anomalies_count": anomalies_count,
+            "dynamic_carbon_pct": round(dyn_c, 1),
             "evidence_sources": [
                 "✓ Real-time IoT Sensor Array Stream",
                 "✓ Multi-spectral Satellite & Drone Remote Sensing",
