@@ -252,6 +252,7 @@ def get_pond_crypto_anchor(pond_id: str, db: Session = Depends(get_db)):
     }
 
 @router.get("/biomass-fate")
+@router.get("/biomass/fate")
 def get_biomass_fate(net_co2_kg: float = Query(41097.5), pathway_key: str = Query("biochar")):
     pathways = {
         "biochar": {"name": "Biochar & Pyrolysis Soil Injection", "score": 100.0, "horizon": "1000+ Years (Geological)", "tier": "TIER_1_PERMANENT"},
@@ -458,5 +459,6 @@ def get_farm_carbon_passport(farm_id: str, db: Session = Depends(get_db)):
 @router.get("/reports/html")
 def download_html_report(farm_id: str = "ALG-001", db: Session = Depends(get_db)):
     passport = get_farm_carbon_passport(farm_id, db=db)
-    html_content = report_generator.generate_html_report(passport.dict())
+    passport_dict = passport.dict() if hasattr(passport, "dict") else (passport.model_dump() if hasattr(passport, "model_dump") else passport)
+    html_content = report_generator.generate_html_report(passport_dict)
     return Response(content=html_content, media_type="text/html")

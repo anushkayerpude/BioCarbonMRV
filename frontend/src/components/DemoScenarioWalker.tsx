@@ -67,7 +67,7 @@ export const DemoScenarioWalker: React.FC<DemoScenarioWalkerProps> = ({
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold text-xs rounded-full shadow-lg flex items-center space-x-2 hover:scale-105 transition-all"
+        className="fixed bottom-6 right-6 z-50 px-4 py-2.5 bg-gradient-to-r from-[#6b8e23] to-[#84a948] text-slate-950 font-bold text-xs rounded-full shadow-lg shadow-[#6b8e23]/30 flex items-center space-x-2 hover:scale-105 transition-all"
       >
         <Sparkles className="w-4 h-4" />
         <span>Launch 60-Sec Demo Presentation</span>
@@ -90,11 +90,11 @@ export const DemoScenarioWalker: React.FC<DemoScenarioWalkerProps> = ({
   };
 
   return (
-    <div className="fixed bottom-6 inset-x-4 max-w-2xl mx-auto z-50 glass-panel-glow rounded-2xl p-4 border border-emerald-500/60 shadow-2xl">
+    <div className="fixed bottom-6 inset-x-4 max-w-2xl mx-auto z-50 glass-panel-glow rounded-2xl p-4 border border-[#708238]/60 bg-[#0d140b]/90 backdrop-blur-2xl shadow-2xl">
       <div className="flex items-center justify-between gap-4">
         
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-mono font-bold text-xs">
+          <div className="w-8 h-8 rounded-xl bg-[#84a948] text-slate-950 flex items-center justify-center font-mono font-bold text-xs">
             {currentStep + 1}/{steps.length}
           </div>
           <div>
@@ -108,14 +108,14 @@ export const DemoScenarioWalker: React.FC<DemoScenarioWalkerProps> = ({
         <div className="flex items-center space-x-2">
           <button
             onClick={handlePrev}
-            className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs"
+            className="p-1.5 rounded-lg bg-[#182313] text-slate-300 hover:bg-[#283618] text-xs"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           
           <button
             onClick={handleNext}
-            className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg flex items-center space-x-1"
+            className="px-3 py-1.5 bg-[#84a948] hover:bg-[#99b83c] text-slate-950 font-bold text-xs rounded-lg flex items-center space-x-1"
           >
             <span>Next</span>
             <ChevronRight className="w-3.5 h-3.5" />

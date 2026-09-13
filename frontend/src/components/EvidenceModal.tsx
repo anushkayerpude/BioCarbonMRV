@@ -47,20 +47,20 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#0f172a] border border-emerald-500/40 rounded-3xl w-full max-w-3xl shadow-2xl shadow-emerald-950/50 relative p-6 lg:p-8">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-[#0a0f0a] border border-[#708238]/50 rounded-3xl w-full max-w-3xl shadow-2xl shadow-[#10170d]/80 relative p-6 lg:p-8">
         
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
+          className="absolute top-6 right-6 p-2 rounded-full bg-[#182313] text-slate-400 hover:text-white hover:bg-[#283618] transition-all"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Title */}
-        <div className="flex items-center space-x-3 mb-6 border-b border-slate-800 pb-4">
-          <div className="p-3 rounded-2xl bg-emerald-950 border border-emerald-500/50 text-emerald-400">
+        <div className="flex items-center space-x-3 mb-6 border-b border-[#283618]/80 pb-4">
+          <div className="p-3 rounded-2xl bg-[#1c2710] border border-[#708238]/60 text-[#d9ed92]">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
@@ -72,21 +72,21 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
         </div>
 
         {/* Headline Evidence Summary Card */}
-        <div className="glass-panel-glow rounded-2xl p-5 mb-6 border border-emerald-500/50">
+        <div className="glass-panel-glow rounded-2xl p-5 mb-6 border border-[#708238]/50">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#a3be8c] uppercase tracking-wider">
                 ESTIMATED DAILY CO₂ CAPTURE
               </span>
               <div className="text-3xl font-extrabold text-white font-mono mt-1">
-                78.4 <span className="text-sm font-semibold text-emerald-400">kg CO₂ / day</span>
+                78.4 <span className="text-sm font-semibold text-[#d9ed92]">kg CO₂ / day</span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">Calculated from fused dry biomass gain (0.50 C-fraction × 44/12)</p>
             </div>
 
-            <div className="bg-slate-900/90 rounded-xl p-3 border border-emerald-500/40 text-center min-w-[140px]">
+            <div className="bg-[#10170d] rounded-xl p-3 border border-[#708238]/40 text-center min-w-[140px]">
               <span className="text-[11px] text-slate-400 uppercase font-mono">Verification Confidence</span>
-              <div className="text-2xl font-bold text-emerald-400 font-mono">
+              <div className="text-2xl font-bold text-[#d9ed92] font-mono">
                 {verification ? verification.overall_confidence_pct : 91.0}%
               </div>
             </div>
@@ -135,13 +135,13 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
         </div>
 
         {/* Interactive Fusion Weight Tuner */}
-        <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 mb-6">
+        <div className="bg-[#10170d] rounded-2xl p-5 border border-[#283618] mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-emerald-400" />
+              <Sliders className="w-4 h-4 text-[#84a948]" />
               <span>Interactive Data Fusion Weight Tuner</span>
             </h3>
-            <span className="text-xs font-mono font-bold text-emerald-400">
+            <span className="text-xs font-mono font-bold text-[#d9ed92]">
               Fused Biomass: {calcFinalBiomass()} g/L
             </span>
           </div>
@@ -159,7 +159,7 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
                 step="0.05"
                 value={wSensor}
                 onChange={(e) => setWSensor(parseFloat(e.target.value))}
-                className="w-full accent-cyan-400 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-[#84a948] bg-[#1b250e] rounded-lg cursor-pointer"
               />
             </div>
 
@@ -175,7 +175,7 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
                 step="0.05"
                 value={wImage}
                 onChange={(e) => setWImage(parseFloat(e.target.value))}
-                className="w-full accent-teal-400 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-[#a3be8c] bg-[#1b250e] rounded-lg cursor-pointer"
               />
             </div>
 
@@ -191,19 +191,19 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
                 step="0.05"
                 value={wMl}
                 onChange={(e) => setWMl(parseFloat(e.target.value))}
-                className="w-full accent-purple-400 bg-slate-800 rounded-lg cursor-pointer"
+                className="w-full accent-[#d9ed92] bg-[#1b250e] rounded-lg cursor-pointer"
               />
             </div>
           </div>
         </div>
 
         {/* Audit Evidence Checklist */}
-        <div className="bg-slate-950/80 rounded-2xl p-4 border border-slate-800">
+        <div className="bg-[#0a0f0a] rounded-2xl p-4 border border-[#283618]">
           <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Verification Checklist & Audit Trail</h4>
           <ul className="space-y-2 text-xs text-slate-300">
             {verification?.evidence_checklist.map((item, idx) => (
               <li key={idx} className="flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 text-[#84a948] flex-shrink-0" />
                 <span>{item}</span>
               </li>
             ))}
@@ -211,20 +211,20 @@ export const EvidenceModal: React.FC<EvidenceModalProps> = ({
         </div>
 
         {/* SHA-256 Cryptographic Data Anchor Box */}
-        <div className="bg-slate-950/90 rounded-2xl p-4 border border-purple-500/40 space-y-2">
+        <div className="bg-[#0a0f0a] rounded-2xl p-4 border border-[#708238]/50 space-y-2 mt-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-purple-300 font-mono flex items-center gap-1.5">
+            <span className="text-xs font-bold text-[#d9ed92] font-mono flex items-center gap-1.5">
               <span>🔒 SHA-256 CRYPTOGRAPHIC AUDIT ANCHOR</span>
             </span>
-            <span className="text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono font-bold bg-[#1c2710] text-[#d9ed92] border border-[#708238] px-2 py-0.5 rounded-full">
               UNALTERED & VERIFIED
             </span>
           </div>
 
-          <div className="bg-slate-900 p-2.5 rounded-xl border border-slate-800 font-mono text-[10px] space-y-1">
+          <div className="bg-[#10170d] p-2.5 rounded-xl border border-[#283618] font-mono text-[10px] space-y-1">
             <div className="text-slate-400">Anchor ID: <strong className="text-white">{verification?.crypto_anchor?.anchor_id || 'BIO-ANCHOR-A89F2E01'}</strong></div>
-            <div className="text-slate-400 truncate">Payload Hash: <strong className="text-purple-300">{verification?.crypto_anchor?.sha256_hash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}</strong></div>
-            <div className="text-slate-400 truncate">Merkle Root: <strong className="text-emerald-400">{verification?.crypto_anchor?.merkle_root || 'f892a0b1c92e1048b72e1903e821094f'}</strong></div>
+            <div className="text-slate-400 truncate">Payload Hash: <strong className="text-[#d9ed92]">{verification?.crypto_anchor?.sha256_hash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}</strong></div>
+            <div className="text-slate-400 truncate">Merkle Root: <strong className="text-[#a3be8c]">{verification?.crypto_anchor?.merkle_root || 'f892a0b1c92e1048b72e1903e821094f'}</strong></div>
           </div>
         </div>
 

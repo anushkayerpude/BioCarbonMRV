@@ -1,158 +1,178 @@
 import React from 'react';
 import type { CO2Sequestration, VerificationScore, Pond } from '../types';
-import { Leaf, Database, Flame, Lock } from 'lucide-react';
+import { Leaf, Database, AlertCircle, ShieldCheck } from 'lucide-react';
 
 interface BioCarbonBottomKPIsProps {
   carbonData: CO2Sequestration | null;
   verificationData: VerificationScore | null;
   ponds: Pond[];
   onOpenEvidence: () => void;
+  onSelectPond?: (pond: Pond) => void;
 }
 
 export const BioCarbonBottomKPIs: React.FC<BioCarbonBottomKPIsProps> = ({
   carbonData,
   verificationData,
-  ponds: _ponds,
-  onOpenEvidence
+  ponds,
+  onOpenEvidence,
+  onSelectPond
 }) => {
   const netCo2Tonnes = carbonData ? (carbonData.net_co2_removed_kg ? carbonData.net_co2_removed_kg / 1000.0 : 41.1) : 41.1;
   const grossCo2Tonnes = carbonData ? (carbonData.gross_co2_captured_kg ? carbonData.gross_co2_captured_kg / 1000.0 : 43.5) : 43.5;
   const totalBiomassTonnes = carbonData ? (carbonData.current_biomass_kg / 1000.0 > 0 ? carbonData.current_biomass_kg / 1000.0 : 8.42) : 8.42;
   const dynamicCFraction = carbonData?.dynamic_carbon_fraction || 0.524;
-  const cryptoHash = verificationData?.crypto_anchor?.sha256_hash ? `${verificationData.crypto_anchor.sha256_hash.slice(0, 10)}...` : 'e3b0c44298...';
+  const verificationScore = verificationData?.overall_confidence_pct ?? 91.0;
+
+  const criticalCount = ponds.filter(p => p.status === 'CRITICAL').length;
+  const warningCount = ponds.filter(p => p.status === 'WARNING').length;
+  const healthyCount = ponds.filter(p => p.status === 'HEALTHY').length;
+  const criticalPond = ponds.find(p => p.status === 'CRITICAL');
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 w-full">
       
-      {/* CARD 1: Net CO2 Removed (Dynamic Carbon Fraction + Net Calculation) */}
-      <div className="bg-[#090d17]/95 backdrop-blur-xl border border-emerald-500/40 rounded-3xl p-4 shadow-xl hover:border-emerald-400 transition-all group">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-xl bg-emerald-950/80 border border-emerald-800/60 text-emerald-400 flex items-center justify-center">
+      {/* CARD 1: Net CO2 Removed */}
+      <div className="bg-[#0c140c]/80 backdrop-blur-xl border border-[#233318]/90 hover:border-[#708238]/80 rounded-3xl p-6 shadow-xl transition-all group">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#182313] border border-[#708238]/50 text-[#d9ed92] flex items-center justify-center shadow-md shadow-[#182313]/50">
               <Leaf className="w-4 h-4" />
             </div>
-            <span className="text-xs font-bold text-slate-200">Net CO₂ Removed</span>
-          </div>
-
-          <div className="flex items-center space-x-1 text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-800">
-            <span>{(dynamicCFraction * 100).toFixed(1)}% C</span>
-          </div>
-        </div>
-
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="text-2xl font-black text-white font-mono tracking-tight">
-              {netCo2Tonnes.toFixed(1)} <span className="text-sm font-bold text-emerald-400">tonnes</span>
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
-              Gross {grossCo2Tonnes.toFixed(1)}t - Op Emissions
+            <div>
+              <span className="text-xs font-bold text-slate-200 block leading-tight">Net CO₂ Removed</span>
+              <span className="text-[10px] text-slate-400">Carbon Credited</span>
             </div>
           </div>
 
-          <div className="text-right text-[10px] font-mono text-emerald-400 font-bold">
-            <span>94.5% Eff</span>
-          </div>
+          <span className="text-[10px] font-mono font-bold text-[#d9ed92] bg-[#16220e] px-2.5 py-1 rounded-full border border-[#708238]/50">
+            {(dynamicCFraction * 100).toFixed(1)}% C
+          </span>
         </div>
+
+        <div className="flex items-baseline justify-between mt-3">
+          <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
+            {netCo2Tonnes.toFixed(1)} <span className="text-xs text-[#d9ed92] font-semibold">tonnes</span>
+          </div>
+          <span className="text-[11px] font-mono text-[#a3be8c] font-semibold">94.5% Net Eff.</span>
+        </div>
+
+        <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+          Gross {grossCo2Tonnes.toFixed(1)}t captured less operational footprint
+        </p>
       </div>
 
-      {/* CARD 2: Total Biomass & Species Purity */}
-      <div className="bg-[#090d17]/95 backdrop-blur-xl border border-teal-500/40 rounded-3xl p-4 shadow-xl hover:border-teal-400 transition-all group">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-xl bg-teal-950/80 border border-teal-800/60 text-teal-400 flex items-center justify-center">
+      {/* CARD 2: Cultivated Algae Biomass */}
+      <div className="bg-[#0c140c]/80 backdrop-blur-xl border border-[#233318]/90 hover:border-[#708238]/80 rounded-3xl p-6 shadow-xl transition-all group">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#182313] border border-[#708238]/50 text-[#d9ed92] flex items-center justify-center shadow-md shadow-[#182313]/50">
               <Database className="w-4 h-4" />
             </div>
-            <span className="text-xs font-bold text-slate-200">Total Dry Biomass</span>
-          </div>
-
-          <div className="flex items-center space-x-1 text-[10px] font-mono font-bold text-teal-400 bg-teal-950/80 px-2 py-0.5 rounded-full border border-teal-800">
-            <span>98.4% Pure</span>
-          </div>
-        </div>
-
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="text-2xl font-black text-white font-mono tracking-tight">
-              {totalBiomassTonnes.toFixed(2)} <span className="text-sm font-bold text-teal-400">t</span>
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
-              Chlorella Monoculture
+            <div>
+              <span className="text-xs font-bold text-slate-200 block leading-tight">Active Biomass</span>
+              <span className="text-[10px] text-slate-400">Total Dry Weight</span>
             </div>
           </div>
 
-          <div className="text-right text-[10px] font-mono text-teal-300 font-bold">
-            <span>6 Ponds</span>
-          </div>
+          <span className="text-[10px] font-mono font-bold text-[#d9ed92] bg-[#16220e] px-2.5 py-1 rounded-full border border-[#708238]/50">
+            98.4% Pure
+          </span>
         </div>
+
+        <div className="flex items-baseline justify-between mt-3">
+          <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
+            {totalBiomassTonnes.toFixed(2)} <span className="text-xs text-[#d9ed92] font-semibold">tonnes</span>
+          </div>
+          <span className="text-[11px] font-mono text-[#a3be8c] font-semibold">6 Raceway Ponds</span>
+        </div>
+
+        <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+          Chlorella vulgaris high-growth culture across 10.5 ha
+        </p>
       </div>
 
-      {/* CARD 3: Biomass Fate & Permanence Score */}
-      <div className="bg-[#090d17]/95 backdrop-blur-xl border border-purple-500/40 rounded-3xl p-4 shadow-xl hover:border-purple-400 transition-all group">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-xl bg-purple-950/80 border border-purple-800/60 text-purple-400 flex items-center justify-center">
-              <Flame className="w-4 h-4" />
+      {/* CARD 3: Pond Fleet Operational Health */}
+      <div 
+        onClick={() => {
+          if (criticalPond && onSelectPond) onSelectPond(criticalPond);
+        }}
+        className={`bg-[#0c140c]/80 backdrop-blur-xl border rounded-3xl p-6 shadow-xl transition-all group ${
+          criticalCount > 0 
+            ? 'border-rose-900/60 hover:border-rose-500/70 cursor-pointer' 
+            : 'border-[#233318]/90 hover:border-[#708238]/80'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2.5">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center border shadow-md ${
+              criticalCount > 0 
+                ? 'bg-rose-950/80 border-rose-700/60 text-rose-300 shadow-rose-950/40' 
+                : 'bg-[#182313] border-[#708238]/50 text-[#d9ed92] shadow-[#182313]/50'
+            }`}>
+              <AlertCircle className="w-4 h-4" />
             </div>
-            <span className="text-xs font-bold text-slate-200">Permanence Score</span>
+            <div>
+              <span className="text-xs font-bold text-slate-200 block leading-tight">Facility Fleet</span>
+              <span className="text-[10px] text-slate-400">Pond Health Status</span>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-1 text-[10px] font-mono font-bold text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-full border border-purple-800">
-            <span>1000+ Yrs</span>
-          </div>
+          <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${
+            criticalCount > 0 
+              ? 'bg-rose-950/80 text-rose-300 border-rose-800' 
+              : 'bg-[#16220e] text-[#d9ed92] border-[#708238]/50'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${criticalCount > 0 ? 'bg-rose-500 animate-ping' : 'bg-[#84a948]'}`} />
+            {criticalCount > 0 ? '1 Critical Anomaly' : 'All Systems Optimal'}
+          </span>
         </div>
 
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="text-2xl font-black text-purple-300 font-mono tracking-tight">
-              100%
-            </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
-              Biochar Soil Injection
-            </div>
+        <div className="flex items-baseline justify-between mt-3">
+          <div className="text-3xl font-extrabold text-white font-mono tracking-tight">
+            {healthyCount} <span className="text-xs text-slate-400 font-normal">/ {ponds.length || 6} Healthy</span>
           </div>
-
-          {/* Circular Progress Ring */}
-          <div className="w-10 h-10 relative flex items-center justify-center">
-            <svg className="w-full h-full -rotate-90">
-              <circle cx="20" cy="20" r="15" fill="none" stroke="#1e293b" strokeWidth="3.5" />
-              <circle cx="20" cy="20" r="15" fill="none" stroke="#a855f7" strokeWidth="3.5" strokeDasharray="94" strokeDashoffset="0" strokeLinecap="round" />
-            </svg>
-          </div>
+          <span className="text-[11px] font-mono text-amber-400 font-semibold">
+            {warningCount > 0 ? `${warningCount} Warning` : '0 Warn'}
+          </span>
         </div>
+
+        <p className="text-[11px] text-slate-400 mt-2 leading-relaxed flex items-center justify-between">
+          <span>{criticalCount > 0 ? 'Pond 04 needs attention' : 'Normal photosynthetic accumulation'}</span>
+          {criticalCount > 0 && <span className="text-rose-400 font-bold group-hover:underline">Inspect ➔</span>}
+        </p>
       </div>
 
-      {/* CARD 4: Cryptographic SHA-256 Data Anchor */}
+      {/* CARD 4: MRV Verification & Audit Score */}
       <div 
         onClick={onOpenEvidence}
-        className="bg-[#090d17]/95 backdrop-blur-xl border border-cyan-500/40 hover:border-cyan-400 rounded-3xl p-4 shadow-xl transition-all cursor-pointer group"
+        className="bg-[#0c140c]/80 backdrop-blur-xl border border-[#233318]/90 hover:border-[#708238]/80 rounded-3xl p-6 shadow-xl transition-all cursor-pointer group"
       >
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-xl bg-cyan-950/80 border border-cyan-800/60 text-cyan-400 flex items-center justify-center">
-              <Lock className="w-4 h-4" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#182313] border border-[#708238]/50 text-[#d9ed92] flex items-center justify-center shadow-md shadow-[#182313]/50">
+              <ShieldCheck className="w-4 h-4" />
             </div>
-            <span className="text-xs font-bold text-slate-200">SHA-256 Data Anchor</span>
+            <div>
+              <span className="text-xs font-bold text-slate-200 block leading-tight">MRV Verification</span>
+              <span className="text-[10px] text-slate-400">Digital Audit Trail</span>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-1 text-[9px] font-mono font-bold text-cyan-300 bg-cyan-950/80 px-2 py-0.5 rounded-full border border-cyan-800">
-            <span>VERIFIED</span>
-          </div>
+          <span className="text-[10px] font-mono font-bold text-[#d9ed92] bg-[#16220e] px-2.5 py-1 rounded-full border border-[#708238]/50">
+            SHA-256 Sealed
+          </span>
         </div>
 
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="text-xs font-black text-cyan-300 font-mono tracking-tight truncate max-w-[130px] mt-1">
-              {cryptoHash}
-            </div>
-            <div className="text-[10px] text-slate-400 mt-1">
-              Tamper-evident audit seal
-            </div>
+        <div className="flex items-baseline justify-between mt-3">
+          <div className="text-3xl font-extrabold text-[#d9ed92] font-mono tracking-tight">
+            {verificationScore.toFixed(1)}% <span className="text-xs text-slate-400 font-normal">Score</span>
           </div>
-
-          <div className="text-right text-[10px] font-mono text-cyan-400 font-bold group-hover:underline">
-            INSPECT ➔
-          </div>
+          <span className="text-[11px] font-mono text-[#84a948] font-bold group-hover:underline">Audit Trail ➔</span>
         </div>
+
+        <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+          IoT, Sentinel-2 & ML cross-validated · 100% Biochar
+        </p>
       </div>
 
     </div>

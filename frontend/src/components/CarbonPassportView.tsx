@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { CarbonPassport } from '../types';
-import { fetchCarbonPassport } from '../services/api';
+import { fetchCarbonPassport, getReportHtmlUrl } from '../services/api';
 import { BiomassFateTracker } from './BiomassFateTracker';
 import { ShieldCheck, Download, Award, CheckCircle2, Lock, Cpu, Flame } from 'lucide-react';
 
@@ -12,26 +12,26 @@ export const CarbonPassportView: React.FC = () => {
   }, []);
 
   const handleDownloadReport = () => {
-    window.open('http://localhost:8000/api/reports/html?farm_id=ALG-001', '_blank');
+    window.open(getReportHtmlUrl('ALG-001'), '_blank');
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       
       {/* Passport Card Wrapper */}
-      <div className="glass-panel-glow rounded-3xl p-8 border border-emerald-500/50 relative overflow-hidden shadow-2xl space-y-6">
+      <div className="glass-panel-glow rounded-3xl p-8 border border-[#708238]/50 relative overflow-hidden shadow-2xl space-y-6">
         
         {/* Background Emblem */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#84a948]/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
 
         {/* Passport Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-800 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-[#283618]/80 pb-6">
           <div className="flex items-center space-x-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#556b2f] via-[#708238] to-[#84a948] flex items-center justify-center shadow-lg shadow-[#708238]/30">
               <ShieldCheck className="w-8 h-8 text-white" />
             </div>
             <div>
-              <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">
+              <span className="text-xs font-mono font-bold text-[#a3be8c] uppercase tracking-widest">
                 VERIFIED DIGITAL CARBON PASSPORT
               </span>
               <h2 className="text-2xl font-extrabold text-white">Gujarat Algae Farm</h2>
@@ -42,15 +42,15 @@ export const CarbonPassportView: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-3">
-            <div className="px-4 py-2 bg-slate-900/90 rounded-2xl border border-emerald-500/40 text-center font-mono">
+            <div className="px-4 py-2 bg-[#10170d] rounded-2xl border border-[#708238]/40 text-center font-mono">
               <span className="text-[10px] text-slate-400 uppercase block">Passport ID</span>
-              <span className="text-xs font-bold text-emerald-400">
+              <span className="text-xs font-bold text-[#d9ed92]">
                 {passport ? passport.passport_id : 'PASSPORT-A89F2E01'}
               </span>
             </div>
             <button
               onClick={handleDownloadReport}
-              className="flex items-center space-x-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-2xl transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+              className="flex items-center space-x-2 px-5 py-3 bg-[#84a948] hover:bg-[#99b83c] text-slate-950 font-bold text-xs rounded-2xl transition-all shadow-lg shadow-[#84a948]/25 cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Export Verified Passport PDF</span>
@@ -61,37 +61,37 @@ export const CarbonPassportView: React.FC = () => {
         {/* Core Passport Metrics Grid (Including Net Carbon & Dynamic Carbon %) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          <div className="bg-slate-900/80 rounded-2xl p-4 border border-emerald-500/40">
+          <div className="bg-[#10170d] rounded-2xl p-4 border border-[#708238]/40">
             <span className="text-xs text-slate-400 font-medium block">Net CO₂ Removed</span>
-            <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">
+            <div className="text-2xl font-bold font-mono text-[#d9ed92] mt-1">
               {passport ? (passport.net_co2_removed_tonnes || 2.31).toFixed(2) : '2.31'} <span className="text-xs text-slate-400">tonnes</span>
             </div>
-            <span className="text-[11px] text-emerald-300/80 block mt-1">✓ Net of operational emissions</span>
+            <span className="text-[11px] text-[#a3be8c] block mt-1">✓ Net of operational emissions</span>
           </div>
 
-          <div className="bg-slate-900/80 rounded-2xl p-4 border border-purple-500/40">
+          <div className="bg-[#10170d] rounded-2xl p-4 border border-[#606c38]/40">
             <span className="text-xs text-slate-400 font-medium block flex items-center gap-1">
-              <Cpu className="w-3.5 h-3.5 text-purple-400" /> Dynamic Carbon %
+              <Cpu className="w-3.5 h-3.5 text-[#a3be8c]" /> Dynamic Carbon %
             </span>
-            <div className="text-2xl font-bold font-mono text-purple-300 mt-1">
+            <div className="text-2xl font-bold font-mono text-[#d9ed92] mt-1">
               {passport ? (passport.dynamic_carbon_pct || 52.4) : 52.4}%
             </div>
             <span className="text-[11px] text-slate-400 block mt-1">Stress-model predicted</span>
           </div>
 
-          <div className="bg-slate-900/80 rounded-2xl p-4 border border-teal-500/40">
+          <div className="bg-[#10170d] rounded-2xl p-4 border border-[#708238]/40">
             <span className="text-xs text-slate-400 font-medium block flex items-center gap-1">
-              <Flame className="w-3.5 h-3.5 text-teal-400" /> Permanence Score
+              <Flame className="w-3.5 h-3.5 text-amber-400" /> Permanence Score
             </span>
-            <div className="text-2xl font-bold font-mono text-teal-300 mt-1">
+            <div className="text-2xl font-bold font-mono text-amber-300 mt-1">
               100%
             </div>
             <span className="text-[11px] text-slate-400 block mt-1">Biochar / 1000+ Yrs</span>
           </div>
 
-          <div className="bg-slate-900/80 rounded-2xl p-4 border border-cyan-500/40">
+          <div className="bg-[#10170d] rounded-2xl p-4 border border-[#708238]/40">
             <span className="text-xs text-slate-400 font-medium block">Verification Score</span>
-            <div className="text-2xl font-bold font-mono text-cyan-300 mt-1">
+            <div className="text-2xl font-bold font-mono text-[#d9ed92] mt-1">
               {passport ? passport.verification_confidence_pct : 93.0}%
             </div>
             <span className="text-[11px] text-slate-400 block mt-1">Multi-Source Validated</span>
@@ -100,18 +100,18 @@ export const CarbonPassportView: React.FC = () => {
         </div>
 
         {/* SHA-256 CRYPTOGRAPHIC SEAL BAR */}
-        <div className="bg-slate-950 p-4 rounded-2xl border border-purple-500/50 flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-xs">
+        <div className="bg-[#0a0f0a] p-4 rounded-2xl border border-[#708238]/50 flex flex-col md:flex-row items-center justify-between gap-4 font-mono text-xs">
           <div className="flex items-center space-x-3">
-            <Lock className="w-5 h-5 text-purple-400 flex-shrink-0" />
+            <Lock className="w-5 h-5 text-[#84a948] flex-shrink-0" />
             <div>
               <span className="text-slate-400 block text-[10px] uppercase">SHA-256 Cryptographic Audit Seal</span>
-              <span className="text-purple-300 font-bold text-xs truncate max-w-md block">
+              <span className="text-[#d9ed92] font-bold text-xs truncate max-w-md block">
                 {passport?.crypto_anchor?.sha256_hash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}
               </span>
             </div>
           </div>
 
-          <div className="px-3 py-1 bg-purple-950 border border-purple-800 text-purple-300 rounded-full font-bold text-[10px] whitespace-nowrap">
+          <div className="px-3 py-1 bg-[#1c2710] border border-[#708238] text-[#d9ed92] rounded-full font-bold text-[10px] whitespace-nowrap">
             ✓ TAMPER-PROOF ANCHOR
           </div>
         </div>

@@ -112,6 +112,17 @@ async def background_sensor_simulation_loop():
                     "verification_confidence": verification_calc
                 })
             
+            # Compute farm-level aggregates for real-time Executive KPIs
+            farm_co2 = co2_engine.calculate_farm_total_co2([p["co2_estimate"] for p in pond_payloads])
+            total_current_biomass = sum(p["co2_estimate"]["current_biomass_kg"] for p in pond_payloads)
+            farm_co2["current_biomass_kg"] = round(total_current_biomass, 2)
+            farm_co2["farm_id"] = "ALG-001"
+
+            avg_verification = round(
+                sum(p["verification_confidence"]["overall_confidence_pct"] for p in pond_payloads) / max(1, len(pond_payloads)),
+                1
+            )
+
             db.close()
             
             # Broadcast real-time telemetry frame to WebSocket clients
@@ -119,7 +130,11 @@ async def background_sensor_simulation_loop():
                 "event": "TELEMETRY_UPDATE",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "nwdp_environmental_context": env_context,
-                "ponds": pond_payloads
+                "ponds": pond_payloads,
+                "farm_carbon": farm_co2,
+                "farm_verification": {
+                    "overall_confidence_pct": avg_verification
+                }
             }
             await ws_manager.broadcast(telemetry_event)
 

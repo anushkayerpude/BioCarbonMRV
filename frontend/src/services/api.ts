@@ -4,7 +4,16 @@ import type {
   BiomassFate, CryptoAnchor, SpeciesDetection, NWDPEnvironmentalContext
 } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+export const API_BASE_URL = 
+  import.meta.env.VITE_API_BASE_URL ||
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000/api/v1'
+    : '/api/v1');
+
+export function getReportHtmlUrl(farmId: string = 'ALG-001'): string {
+  const root = API_BASE_URL.replace(/\/v1$/, '');
+  return `${root}/reports/html?farm_id=${farmId}`;
+}
 
 export async function fetchNWDPContext(): Promise<NWDPEnvironmentalContext> {
   const res = await fetch(`${API_BASE_URL}/environmental/nwdp/context`);

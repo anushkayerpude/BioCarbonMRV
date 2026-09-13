@@ -85,19 +85,19 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
   const proteinPct = currentPh > 8.8 ? 32.0 : 52.0;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#0f172a] border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative p-6 lg:p-8 space-y-6">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-[#0a0f0a] border border-[#283618]/90 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative p-6 lg:p-8 space-y-6">
         
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
+          className="absolute top-6 right-6 p-2 rounded-full bg-[#182313] text-slate-400 hover:text-white hover:bg-[#283618] transition-all"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header Title */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#283618]/80 pb-5">
           <div>
             <div className="flex items-center space-x-3">
               <h2 className="text-2xl font-bold text-white font-mono">{pond.name} Digital Twin</h2>
@@ -106,7 +106,7 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
                   ? 'bg-rose-950 text-rose-300 border-rose-700 animate-pulse'
                   : isWarning
                   ? 'bg-amber-950 text-amber-300 border-amber-700'
-                  : 'bg-emerald-950 text-emerald-300 border-emerald-700'
+                  : 'bg-[#182313] text-[#d9ed92] border-[#708238]'
               }`}>
                 {pond.status}
               </span>
@@ -118,7 +118,7 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
 
           <button
             onClick={() => onOpenEvidence(pond.pond_id)}
-            className="flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-500/20"
+            className="flex items-center space-x-2 px-4 py-2 bg-[#84a948] hover:bg-[#99b83c] text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#84a948]/25 cursor-pointer"
           >
             <ShieldCheck className="w-4 h-4" />
             <span>Cross-Source Evidence</span>
@@ -255,13 +255,13 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
               <p className="text-xs text-slate-400">Observed vs ML Model Predicted vs Remote Image Derived</p>
             </div>
 
-            <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-mono">
+            <div className="flex items-center space-x-1 bg-[#0a0f0a] p-1 rounded-xl border border-[#283618] text-xs font-mono">
               {(['24h', '7d', '30d'] as const).map((range) => (
                 <button
                   key={range}
                   onClick={() => setTimeRange(range)}
                   className={`px-2.5 py-1 rounded-lg transition-all ${
-                    timeRange === range ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+                    timeRange === range ? 'bg-[#84a948] text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   {range}
@@ -273,16 +273,16 @@ export const PondDigitalTwin: React.FC<PondDigitalTwinProps> = ({
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={history}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="time" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} domain={['auto', 'auto']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1b250e" />
+                <XAxis dataKey="time" stroke="#6b8e23" fontSize={11} />
+                <YAxis stroke="#6b8e23" fontSize={11} domain={['auto', 'auto']} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: '#0a0f0a', borderColor: '#283618', borderRadius: '12px', fontSize: '12px', color: '#f8fafc' }}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Line type="monotone" dataKey="Observed" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="Predicted" stroke="#38bdf8" strokeWidth={2} strokeDasharray="4 4" />
-                <Line type="monotone" dataKey="ImageDerived" stroke="#a855f7" strokeWidth={2} strokeDasharray="2 2" />
+                <Line type="monotone" dataKey="Observed" stroke="#84a948" strokeWidth={3} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="Predicted" stroke="#d9ed92" strokeWidth={2} strokeDasharray="4 4" />
+                <Line type="monotone" dataKey="ImageDerived" stroke="#a3be8c" strokeWidth={2} strokeDasharray="2 2" />
               </LineChart>
             </ResponsiveContainer>
           </div>

@@ -4,7 +4,6 @@ import { BioCarbonSidebar } from './components/BioCarbonSidebar';
 import { BioCarbonGISMap } from './components/BioCarbonGISMap';
 import { BioCarbonCommandCenter } from './components/BioCarbonCommandCenter';
 import { BioCarbonBottomKPIs } from './components/BioCarbonBottomKPIs';
-import { BiomassFateTracker } from './components/BiomassFateTracker';
 import { LandingPage } from './components/LandingPage';
 import { FarmMap } from './components/FarmMap';
 import { PondDigitalTwin } from './components/PondDigitalTwin';
@@ -13,8 +12,7 @@ import { RemoteSensingViewer } from './components/RemoteSensingViewer';
 import { CarbonPassportView } from './components/CarbonPassportView';
 import { ReportGenerator } from './components/ReportGenerator';
 import { DemoScenarioWalker } from './components/DemoScenarioWalker';
-
-import { NWDPEnvironmentalCard } from './components/NWDPEnvironmentalCard';
+import { BioCarbonPondFleetGrid } from './components/BioCarbonPondFleetGrid';
 import { useTelemetryWebSocket } from './services/websocket';
 import type { Pond, CO2Sequestration, VerificationScore, NWDPEnvironmentalContext } from './types';
 import { fetchFarmPonds, fetchFarmCarbon, fetchFarmVerification, fetchNWDPContext, triggerSensorTick } from './services/api';
@@ -35,6 +33,12 @@ export function App() {
   const { status: wsStatus } = useTelemetryWebSocket((frame) => {
     if (frame.nwdp_environmental_context) {
       setNwdpContext(frame.nwdp_environmental_context);
+    }
+    if (frame.farm_carbon) {
+      setCarbonData((prev) => (prev ? { ...prev, ...frame.farm_carbon } : (frame.farm_carbon as CO2Sequestration)));
+    }
+    if (frame.farm_verification) {
+      setVerificationData((prev) => (prev ? { ...prev, ...frame.farm_verification } : (frame.farm_verification as VerificationScore)));
     }
     if (frame.ponds && frame.ponds.length > 0) {
       setPonds((prevPonds) =>
@@ -89,16 +93,18 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070a12] text-slate-100 font-sans pb-24 overflow-x-hidden">
+    <div className={`min-h-screen bg-dark-olive-algae text-slate-100 font-sans overflow-x-hidden ${activeTab !== 'landing' ? 'pb-24' : ''}`}>
       
-      {/* Top BioCarbonMRV Navbar */}
-      <BioCarbonNavbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        isSimulating={isSimulating}
-        setIsSimulating={setIsSimulating}
-        wsStatus={wsStatus}
-      />
+      {/* Top BioCarbonMRV Navbar (hidden on landing page) */}
+      {activeTab !== 'landing' && (
+        <BioCarbonNavbar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isSimulating={isSimulating}
+          setIsSimulating={setIsSimulating}
+          wsStatus={wsStatus}
+        />
+      )}
 
       {/* Main Body View */}
       {activeTab === 'landing' ? (
@@ -113,49 +119,54 @@ export function App() {
           />
 
           {/* Main Dashboard Workspace */}
-          <main className="flex-1 p-4 lg:p-6 overflow-y-auto min-w-0">
+          <main className="flex-1 p-5 lg:p-8 overflow-y-auto min-w-0">
             
             {activeTab === 'dashboard' && (
-              <div className="space-y-6">
+              <div className="space-y-7 lg:space-y-8 max-w-[1720px] mx-auto">
                 
-                {/* Main Upper Grid: Satellite GIS Map + Right Command Center */}
-                <div className="flex flex-col lg:flex-row gap-4 items-start w-full">
+                {/* 1. PRIMARY GIS SATELLITE & BHUVAN MAP (Positioned Above Everything Else & Enlarged) */}
+                <div className="w-full">
+                  <BioCarbonGISMap
+                    ponds={ponds}
+                    onSelectPond={setSelectedPond}
+                    selectedPondId={selectedPond?.pond_id}
+                  />
+                </div>
+
+                {/* 2. Top Executive KPI Strip: 4 Minimal Non-Redundant Signals with Generous Spacing */}
+                <BioCarbonBottomKPIs
+                  carbonData={carbonData}
+                  verificationData={verificationData}
+                  ponds={ponds}
+                  onOpenEvidence={() => handleOpenEvidence()}
+                  onSelectPond={setSelectedPond}
+                />
+
+                {/* 3. Main Operational Workspace: Raceway Fleet Grid (60%) & Intelligence Center (40%) */}
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-7 items-stretch w-full">
                   
-                  {/* Central GIS Satellite Map */}
-                  <div className="flex-1 w-full min-w-0">
-                    <BioCarbonGISMap
+                  {/* Cultivation Fleet Quick-Status Raceway Grid (60% width) */}
+                  <div className="w-full lg:w-[60%] flex-[6] min-w-0 flex flex-col">
+                    <BioCarbonPondFleetGrid
                       ponds={ponds}
                       onSelectPond={setSelectedPond}
                       selectedPondId={selectedPond?.pond_id}
                     />
                   </div>
 
-                  {/* Right Command Center Panel */}
-                  <div className="w-full lg:w-auto flex-shrink-0">
+                  {/* Right Intelligence & Diagnostics Panel (40% width) */}
+                  <div className="w-full lg:w-[40%] flex-[4] min-w-0 flex flex-col">
                     <BioCarbonCommandCenter
                       carbonData={carbonData}
                       verificationData={verificationData}
                       ponds={ponds}
+                      nwdpContext={nwdpContext}
                       onOpenEvidence={handleOpenEvidence}
                       onSelectPond={setSelectedPond}
                     />
                   </div>
 
                 </div>
-
-                {/* Compact NWDP Environmental Telemetry Context Card */}
-                <NWDPEnvironmentalCard nwdpContext={nwdpContext} />
-
-                {/* Bottom Row of 4 KPI Metric Cards */}
-                <BioCarbonBottomKPIs
-                  carbonData={carbonData}
-                  verificationData={verificationData}
-                  ponds={ponds}
-                  onOpenEvidence={() => handleOpenEvidence()}
-                />
-
-                {/* Biomass Fate & Permanence Tracker Module */}
-                <BiomassFateTracker netCo2Kg={carbonData?.net_co2_removed_kg || 41097.5} />
 
               </div>
             )}
@@ -195,7 +206,7 @@ export function App() {
       {/* Pond Digital Twin Modal */}
       {selectedPond && (
         <PondDigitalTwin
-          pond={selectedPond}
+          pond={ponds.find((p) => p.pond_id === selectedPond.pond_id) || selectedPond}
           onClose={() => setSelectedPond(null)}
           onOpenEvidence={(pId) => handleOpenEvidence(pId)}
         />
@@ -209,13 +220,15 @@ export function App() {
         />
       )}
 
-      {/* Demo Scenario Interactive Walker Bar */}
-      <DemoScenarioWalker
-        setActiveTab={setActiveTab}
-        onSelectPond={setSelectedPond}
-        onOpenEvidence={handleOpenEvidence}
-        ponds={ponds}
-      />
+      {/* Demo Scenario Interactive Walker Bar (hidden on landing page) */}
+      {activeTab !== 'landing' && (
+        <DemoScenarioWalker
+          setActiveTab={setActiveTab}
+          onSelectPond={setSelectedPond}
+          onOpenEvidence={handleOpenEvidence}
+          ponds={ponds}
+        />
+      )}
 
     </div>
   );

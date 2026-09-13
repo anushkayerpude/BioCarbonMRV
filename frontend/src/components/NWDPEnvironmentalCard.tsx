@@ -39,40 +39,40 @@ export const NWDPEnvironmentalCard: React.FC<NWDPEnvironmentalCardProps> = ({ nw
   }) : '2026-07-28 07:00 UTC';
 
   return (
-    <div className="glass-panel rounded-2xl p-4 border border-amber-500/40 bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/20 shadow-lg relative overflow-hidden group">
+    <div className="glass-panel rounded-2xl p-4 border border-[#708238]/40 bg-gradient-to-br from-[#0a0f0a] via-[#10170d] to-[#1a2517] shadow-lg relative overflow-hidden group">
       
       {/* Top Header Badge & Source Label */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-800/80">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-[#283618]/80">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-amber-950/80 text-amber-400 border border-amber-500/30">
+          <div className="p-1.5 rounded-lg bg-[#1c2710] text-[#d9ed92] border border-[#708238]/40">
             <Database className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+            <h3 className="text-xs font-bold text-[#d9ed92] uppercase tracking-wider flex items-center gap-1.5">
               Latest NWDP Observation
-              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-mono">
+              <span className="text-[10px] bg-[#283618] text-[#d9ed92] border border-[#708238]/60 px-2 py-0.5 rounded-full font-mono">
                 DATA SOURCE = {source || 'NWDP'}
               </span>
             </h3>
             <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-              <MapPin className="w-3 h-3 text-amber-400" />
-              <span className="text-slate-200 font-medium">{stationName}</span> ({stationId}) • <span className="text-amber-400 font-semibold">{distanceKm} km from AOI</span>
+              <MapPin className="w-3 h-3 text-[#a3be8c]" />
+              <span className="text-slate-200 font-medium">{stationName}</span> ({stationId}) • <span className="text-[#d9ed92] font-semibold">{distanceKm} km from AOI</span>
             </p>
           </div>
         </div>
 
         {/* Timestamp Badge */}
-        <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-slate-900/90 px-2.5 py-1 rounded-lg border border-slate-800 font-mono">
+        <div className="flex items-center gap-1 text-[10px] text-slate-400 bg-[#10170d] px-2.5 py-1 rounded-lg border border-[#283618] font-mono">
           <Clock className="w-3 h-3 text-slate-400" />
           <span>{obsTime}</span>
         </div>
       </div>
 
       {/* Distinction Alert Banner: Station Environmental Context vs Pond IoT */}
-      <div className="flex items-start gap-1.5 text-[10px] text-amber-200/90 bg-amber-950/40 border border-amber-500/20 rounded-lg p-2 mb-3">
-        <Info className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+      <div className="flex items-start gap-1.5 text-[10px] text-[#d9ed92]/90 bg-[#162113]/70 border border-[#708238]/30 rounded-lg p-2 mb-3">
+        <Info className="w-3.5 h-3.5 text-[#a3be8c] flex-shrink-0 mt-0.5" />
         <span>
-          <strong className="text-amber-300">Station Environmental Context:</strong> External ambient weather observation from NWDP Gujarat station node. Distinct from pond-level IoT sensor readings.
+          <strong className="text-[#d9ed92]">Station Environmental Context:</strong> External ambient weather observation from NWDP Gujarat station node. Distinct from pond-level IoT sensor readings.
         </span>
       </div>
 

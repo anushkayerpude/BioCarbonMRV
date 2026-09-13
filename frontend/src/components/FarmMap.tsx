@@ -48,7 +48,7 @@ export const FarmMap: React.FC<FarmMapProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-emerald-400" />
+            <MapPin className="w-5 h-5 text-[#84a948]" />
             <span>Farm Layout & Digital Twin Ponds</span>
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -56,12 +56,12 @@ export const FarmMap: React.FC<FarmMapProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
+        <div className="flex items-center space-x-2 bg-[#10170d] p-1 rounded-xl border border-[#283618]">
           <button
             onClick={() => setViewMode('schematic')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               viewMode === 'schematic'
-                ? 'bg-emerald-500 text-slate-950 shadow-md'
+                ? 'bg-[#84a948] text-slate-950 shadow-md shadow-[#84a948]/30 font-bold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -71,7 +71,7 @@ export const FarmMap: React.FC<FarmMapProps> = ({
             onClick={() => setViewMode('gis')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               viewMode === 'gis'
-                ? 'bg-emerald-500 text-slate-950 shadow-md'
+                ? 'bg-[#84a948] text-slate-950 shadow-md shadow-[#84a948]/30 font-bold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >

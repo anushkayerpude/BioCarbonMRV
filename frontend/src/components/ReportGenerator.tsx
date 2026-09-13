@@ -1,9 +1,10 @@
 import React from 'react';
 import { FileText, Printer, ShieldCheck } from 'lucide-react';
+import { getReportHtmlUrl } from '../services/api';
 
 export const ReportGenerator: React.FC = () => {
   const handlePrintHTML = () => {
-    window.open('http://localhost:8000/api/reports/html?farm_id=ALG-001', '_blank');
+    window.open(getReportHtmlUrl('ALG-001'), '_blank');
   };
 
   return (
@@ -11,10 +12,10 @@ export const ReportGenerator: React.FC = () => {
       
       <div className="glass-panel rounded-3xl p-8 border border-slate-800">
         
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-800 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-[#283618]/80 pb-6">
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <FileText className="w-6 h-6 text-emerald-400" />
+              <FileText className="w-6 h-6 text-[#84a948]" />
               <span>Generate Carbon Verification Report</span>
             </h2>
             <p className="text-xs text-slate-400 mt-1">
@@ -24,7 +25,7 @@ export const ReportGenerator: React.FC = () => {
 
           <button
             onClick={handlePrintHTML}
-            className="flex items-center space-x-2 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-2xl transition-all shadow-lg shadow-emerald-500/20"
+            className="flex items-center space-x-2 px-5 py-3 bg-[#84a948] hover:bg-[#99b83c] text-slate-950 font-bold text-xs rounded-2xl transition-all shadow-lg shadow-[#84a948]/25 cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Generate & Open Report</span>

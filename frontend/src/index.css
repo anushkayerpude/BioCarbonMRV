@@ -1,9 +1,43 @@
 @import "tailwindcss";
 @import 'leaflet/dist/leaflet.css';
 
+@theme {
+  --color-emerald-300: #d9ed92;
+  --color-emerald-400: #a3be8c;
+  --color-emerald-500: #84a948;
+  --color-emerald-600: #6b8e23;
+  --color-emerald-700: #556b2f;
+  --color-emerald-800: #3d4f1f;
+  --color-emerald-900: #283618;
+  --color-emerald-950: #141d0b;
+
+  --color-teal-300: #d0db97;
+  --color-teal-400: #99b83c;
+  --color-teal-500: #708238;
+  --color-teal-600: #5b6b2c;
+  --color-teal-700: #465320;
+  --color-teal-800: #323d14;
+  --color-teal-900: #21280b;
+  --color-teal-950: #131906;
+
+  --color-olive-300: #d9ed92;
+  --color-olive-400: #a3be8c;
+  --color-olive-500: #84a948;
+  --color-olive-600: #6b8e23;
+  --color-olive-700: #556b2f;
+  --color-olive-800: #3d4f1f;
+  --color-olive-900: #283618;
+  --color-olive-950: #141d0b;
+
+  --color-slate-950: #070b07;
+  --color-slate-900: #0e150d;
+  --color-slate-800: #1a2618;
+  --color-slate-700: #2c3c28;
+}
+
 @layer base {
   body {
-    background-color: #090d16;
+    background-color: #080c08;
     color: #f8fafc;
     font-family: 'Inter', system-ui, sans-serif;
     min-height: 100vh;
@@ -11,23 +45,38 @@
   }
 }
 
-/* Custom Glassmorphism & Deep-Tech Glow Effects */
+/* Custom Glassmorphism & Deep-Tech Olive Glow Effects */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(14, 20, 14, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
+  border: 1px solid rgba(85, 107, 47, 0.4);
 }
 
 .glass-panel-glow {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(14, 20, 14, 0.88);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(132, 169, 72, 0.4);
+  box-shadow: 0 0 25px -5px rgba(112, 130, 56, 0.22);
 }
 
-.glow-emerald {
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+/* Mild Dark Olive Algae Background */
+.bg-dark-olive-algae {
+  background-color: #060a06;
+  background-image: 
+    radial-gradient(ellipse at 15% 15%, rgba(85, 107, 47, 0.16) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 70%, rgba(112, 130, 56, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(6, 10, 6, 0.91) 0%, rgba(8, 14, 8, 0.93) 50%, rgba(6, 10, 6, 0.96) 100%),
+    url('/hero_olive_algae.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.glow-emerald,
+.glow-olive {
+  box-shadow: 0 0 15px rgba(132, 169, 72, 0.45);
 }
 
 .glow-rose {
@@ -40,14 +89,14 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #0d130c;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #283618;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #84a948;
 }
 
 /* Radar pulse animation */

@@ -1,242 +1,222 @@
-import React, { useState } from 'react';
-import type { CO2Sequestration, VerificationScore, Pond } from '../types';
-import { Leaf, ShieldCheck, AlertTriangle, ArrowRight, ChevronRight, Cpu, Lock, Flame, Activity } from 'lucide-react';
+import React from 'react';
+import type { CO2Sequestration, VerificationScore, Pond, NWDPEnvironmentalContext } from '../types';
+import { 
+  ShieldCheck, 
+  AlertTriangle, 
+  ArrowRight, 
+  Thermometer, 
+  Sun, 
+  CloudRain, 
+  Droplets, 
+  Lock, 
+  Eye, 
+  MapPin 
+} from 'lucide-react';
 
 interface BioCarbonCommandCenterProps {
   carbonData: CO2Sequestration | null;
   verificationData: VerificationScore | null;
   ponds: Pond[];
+  nwdpContext?: NWDPEnvironmentalContext | null;
   onOpenEvidence: (pondId?: string) => void;
   onSelectPond: (pond: Pond) => void;
 }
 
 export const BioCarbonCommandCenter: React.FC<BioCarbonCommandCenterProps> = ({
-  carbonData,
-  verificationData: _verificationData,
+  carbonData: _carbonData,
+  verificationData,
   ponds,
+  nwdpContext,
   onOpenEvidence,
   onSelectPond
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'telemetry' | 'alerts' | 'mrv'>('overview');
-
-  const netCo2Tonnes = carbonData ? (carbonData.net_co2_removed_kg ? carbonData.net_co2_removed_kg / 1000.0 : 41.1) : 41.1;
-  const grossCo2Tonnes = carbonData ? (carbonData.gross_co2_captured_kg ? carbonData.gross_co2_captured_kg / 1000.0 : 43.5) : 43.5;
-  const dynamicCFraction = carbonData?.dynamic_carbon_fraction || 0.524;
-
   const criticalPond = ponds.find((p) => p.status === 'CRITICAL');
   const warningPond = ponds.find((p) => p.status === 'WARNING');
+  const highlightedPond = criticalPond || warningPond;
+
+  // NWDP parameters fallback
+  const params = nwdpContext?.parameters;
+  const tempVal = params?.temperature?.value !== undefined ? params.temperature.value.toFixed(1) : '31.2';
+  const solarVal = params?.solar_radiation?.value !== undefined ? params.solar_radiation.value.toFixed(0) : '642';
+  const rainVal = params?.rainfall?.value !== undefined ? params.rainfall.value.toFixed(1) : '0.0';
+  const humidVal = params?.relative_humidity?.value !== undefined ? params.relative_humidity.value.toFixed(0) : '64';
+  const stationName = params?.temperature?.station_name || 'Gandhinagar Hydro-Met';
+  const stationDist = params?.temperature?.distance_to_aoi_km || 2.33;
+
+  const cryptoHash = verificationData?.crypto_anchor?.sha256_hash 
+    ? `${verificationData.crypto_anchor.sha256_hash.slice(0, 16)}...` 
+    : 'e3b0c44298fc1c14...';
 
   return (
-    <div className="w-full lg:w-[380px] h-[520px] bg-[#090d17]/95 backdrop-blur-2xl border border-slate-800/90 rounded-3xl p-5 shadow-2xl flex flex-col justify-between overflow-y-auto select-none flex-shrink-0">
+    <div className="w-full h-full min-h-[580px] lg:min-h-[620px] bg-[#0c140c]/80 backdrop-blur-2xl border border-[#233318]/90 rounded-3xl p-6 shadow-2xl flex flex-col justify-between select-none">
       
-      <div>
-        {/* HEADER & SYSTEM LIVE BADGE */}
-        <div className="flex items-start justify-between mb-4 border-b border-slate-800/80 pb-3">
+      <div className="space-y-4 lg:space-y-5">
+        
+        {/* SECTION 1: HEADER & LIVE STATUS */}
+        <div className="flex items-center justify-between border-b border-[#233318]/90 pb-3.5">
           <div>
-            <h2 className="text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
-              <span>BioCarbon Intelligence Hub</span>
+            <h2 className="text-sm font-extrabold text-white tracking-tight flex items-center gap-2">
+              <span>Facility Intelligence & Context</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5 font-sans">
-              Real-time algae farm & MRV audit stream
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Automated diagnostics, hydro-met telemetry & MRV consensus
             </p>
           </div>
 
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] font-mono font-bold text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>SYSTEM LIVE</span>
+          <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#16220e] border border-[#708238]/60 text-[10px] font-mono font-bold text-[#d9ed92]">
+            <span className="w-2 h-2 rounded-full bg-[#84a948] animate-pulse" />
+            <span>FACILITY INTEL</span>
           </div>
         </div>
 
-        {/* SUB-TABS (Live Overview, Pond Telemetry, Anomaly Alerts, MRV Audit) */}
-        <div className="flex items-center justify-between border-b border-slate-800/80 mb-4 text-xs font-semibold text-slate-400">
-          <button
-            onClick={() => setActiveSubTab('overview')}
-            className={`pb-2 transition-all relative ${
-              activeSubTab === 'overview' ? 'text-purple-300 font-bold' : 'hover:text-slate-200'
-            }`}
-          >
-            <span>Overview</span>
-            {activeSubTab === 'overview' && (
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-purple-500 rounded-full" />
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('telemetry')}
-            className={`pb-2 transition-all relative ${
-              activeSubTab === 'telemetry' ? 'text-purple-300 font-bold' : 'hover:text-slate-200'
-            }`}
-          >
-            <span>Telemetry</span>
-            {activeSubTab === 'telemetry' && (
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-purple-500 rounded-full" />
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('alerts')}
-            className={`pb-2 transition-all relative ${
-              activeSubTab === 'alerts' ? 'text-purple-300 font-bold' : 'hover:text-slate-200'
-            }`}
-          >
-            <span>Alerts</span>
-            {activeSubTab === 'alerts' && (
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-purple-500 rounded-full" />
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('mrv')}
-            className={`pb-2 transition-all relative ${
-              activeSubTab === 'mrv' ? 'text-purple-300 font-bold' : 'hover:text-slate-200'
-            }`}
-          >
-            <span>MRV Audit</span>
-            {activeSubTab === 'mrv' && (
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-purple-500 rounded-full" />
-            )}
-          </button>
-        </div>
-
-        {/* 5 DEEP-TECH UPGRADES METRICS GRID (2x2) */}
-        <div className="grid grid-cols-2 gap-2.5 mb-5">
-          
-          {/* Box 1: Net Carbon Removed */}
-          <div className="bg-[#0f1524] p-3 rounded-2xl border border-emerald-500/40 hover:border-emerald-400 transition-all">
-            <div className="flex items-center space-x-2 mb-1.5">
-              <div className="w-6 h-6 rounded-lg bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center">
-                <Leaf className="w-3.5 h-3.5" />
+        {/* SECTION 2: ACTIVE OPERATIONAL ALERT */}
+        {highlightedPond ? (
+          <div className="bg-[#140b0b]/90 border border-rose-900/60 rounded-2xl p-4 shadow-xl transition-all">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 rounded-xl bg-rose-950/80 border border-rose-700/60 text-rose-300">
+                  <AlertTriangle className="w-4 h-4 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-rose-200">
+                    {highlightedPond.name}: Thermal Stress
+                  </h3>
+                  <span className="text-[10px] text-rose-400 font-mono font-semibold">
+                    {highlightedPond.status} ANOMALY
+                  </span>
+                </div>
               </div>
+
+              <button
+                onClick={() => onSelectPond(highlightedPond)}
+                className="px-3 py-1.5 rounded-xl bg-rose-900/80 hover:bg-rose-800 text-rose-100 text-[11px] font-bold font-mono transition-all flex items-center gap-1.5 border border-rose-700 cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Inspect</span>
+              </button>
             </div>
-            <div className="text-xl font-black text-white font-mono tracking-tight">{netCo2Tonnes.toFixed(1)} <span className="text-xs text-emerald-400 font-normal">t</span></div>
-            <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">Net CO₂ Removed</div>
-            <div className="text-[9px] text-emerald-400 font-mono mt-1 font-semibold">
-              Gross {grossCo2Tonnes.toFixed(1)}t - Op Subtracted
+
+            <p className="text-[11px] text-rose-200/80 leading-relaxed mt-1">
+              Phycocyanin 0.68 · Temperature 31.8°C (vs 28°C baseline) · pH 9.3 elevated. Biomass decline -31%.
+            </p>
+
+            <div className="mt-3 pt-2.5 border-t border-rose-900/40 flex items-center justify-between text-[11px] font-mono text-rose-300">
+              <span>⚠️ Est. Loss: 7.3 kg CO₂/day</span>
+              <span className="text-slate-400">Flush cycle recommended</span>
             </div>
           </div>
-
-          {/* Box 2: Dynamic Carbon Fraction */}
-          <div className="bg-[#0f1524] p-3 rounded-2xl border border-purple-500/40 hover:border-purple-400 transition-all">
-            <div className="flex items-center space-x-2 mb-1.5">
-              <div className="w-6 h-6 rounded-lg bg-purple-950 border border-purple-800 text-purple-400 flex items-center justify-center">
-                <Cpu className="w-3.5 h-3.5" />
-              </div>
+        ) : (
+          <div className="bg-[#10170d]/80 border border-[#233318] rounded-2xl p-4 flex items-center space-x-3.5">
+            <div className="w-9 h-9 rounded-xl bg-[#1c2710] border border-[#708238]/60 text-[#d9ed92] flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-5 h-5" />
             </div>
-            <div className="text-xl font-black text-purple-300 font-mono tracking-tight">{(dynamicCFraction * 100).toFixed(1)}%</div>
-            <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">Dynamic C Fraction</div>
-            <div className="text-[9px] text-purple-300/80 font-mono mt-1">Stress-model predicted</div>
-          </div>
-
-          {/* Box 3: Species Monoculture Purity */}
-          <div className="bg-[#0f1524] p-3 rounded-2xl border border-cyan-500/40 hover:border-cyan-400 transition-all">
-            <div className="flex items-center space-x-2 mb-1.5">
-              <div className="w-6 h-6 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-400 flex items-center justify-center">
-                <Activity className="w-3.5 h-3.5" />
-              </div>
+            <div>
+              <h3 className="text-xs font-bold text-white">All 6 Raceway Ponds Optimal</h3>
+              <p className="text-[11px] text-slate-400">Photosynthetic biomass growth and CO₂ fixation within normal variance</p>
             </div>
-            <div className="text-xl font-black text-cyan-300 font-mono tracking-tight">98.4%</div>
-            <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">Species Purity</div>
-            <div className="text-[9px] text-cyan-300/80 font-mono mt-1">Chlorella Monoculture</div>
           </div>
+        )}
 
-          {/* Box 4: Permanence Score */}
-          <div className="bg-[#0f1524] p-3 rounded-2xl border border-amber-500/40 hover:border-amber-400 transition-all">
-            <div className="flex items-center space-x-2 mb-1.5">
-              <div className="w-6 h-6 rounded-lg bg-amber-950 border border-amber-800 text-amber-400 flex items-center justify-center">
-                <Flame className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="text-xl font-black text-amber-300 font-mono tracking-tight">100%</div>
-            <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">Permanence Score</div>
-            <div className="text-[9px] text-amber-300/80 font-mono mt-1">Biochar / 1000+ Yrs</div>
-          </div>
-
-        </div>
-
-        {/* SECTION: ALGAE & MRV SIGNALS & AUDIT SEALS */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-              CRYPTOGRAPHIC & MRV SIGNALS
+        {/* SECTION 3: REAL-TIME MRV EVIDENCE & TELEMETRY SUMMARY */}
+        <div className="grid grid-cols-3 gap-2.5">
+          <div className="bg-[#10170d]/70 p-3 rounded-2xl border border-[#233318]/80 text-center font-mono">
+            <span className="text-[10px] text-slate-400 uppercase block mb-1">Dynamic C%</span>
+            <span className="text-sm font-extrabold text-[#d9ed92]">
+              {verificationData ? '51.4%' : '52.4%'}
             </span>
-            <button
-              onClick={() => onOpenEvidence()}
-              className="text-[10px] text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-0.5"
-            >
-              <span>Audit trail</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
+            <span className="text-[9px] text-[#a3be8c] block mt-0.5">Cellular Fraction</span>
           </div>
 
-          <div className="space-y-2">
+          <div className="bg-[#10170d]/70 p-3 rounded-2xl border border-[#233318]/80 text-center font-mono">
+            <span className="text-[10px] text-slate-400 uppercase block mb-1">Cross-Check</span>
+            <span className="text-sm font-extrabold text-white">
+              {verificationData?.overall_confidence_pct ? `${verificationData.overall_confidence_pct}%` : '91.0%'}
+            </span>
+            <span className="text-[9px] text-slate-400 block mt-0.5">3-Source Match</span>
+          </div>
+
+          <div 
+            onClick={() => onOpenEvidence()}
+            className="bg-[#10170d]/70 p-3 rounded-2xl border border-[#233318]/80 text-center font-mono hover:border-[#708238]/80 cursor-pointer transition-all group"
+          >
+            <span className="text-[10px] text-slate-400 uppercase block mb-1 flex items-center justify-center gap-1">
+              <Lock className="w-2.5 h-2.5 text-[#84a948]" />
+              <span>SHA-256</span>
+            </span>
+            <span className="text-[11px] font-bold text-[#d9ed92] group-hover:underline block truncate">
+              {cryptoHash.slice(0, 10)}...
+            </span>
+            <span className="text-[9px] text-[#84a948] block mt-0.5 font-sans font-semibold">Audit Seal ➔</span>
+          </div>
+        </div>
+
+        {/* SECTION 4: AMBIENT HYDRO-MET TELEMETRY (NWDP GUJARAT STATION) */}
+        <div className="bg-[#10170d]/80 border border-[#233318] rounded-2xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <MapPin className="w-3.5 h-3.5 text-[#84a948]" />
+              <span className="text-xs font-bold text-slate-200">Ambient Hydro-Met Feed</span>
+            </div>
+            <span className="text-[9px] font-mono text-slate-400 bg-[#060a06] px-2.5 py-1 rounded-full border border-[#233318]">
+              {stationName} ({stationDist} km)
+            </span>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2.5 text-center font-mono">
             
-            {/* Signal 1: SHA-256 Audit Seal */}
-            <div 
-              onClick={() => onOpenEvidence()}
-              className="bg-[#0f1524] p-2.5 rounded-xl border border-purple-500/50 hover:border-purple-400 transition-all cursor-pointer group flex items-center justify-between"
-            >
-              <div className="pr-2">
-                <div className="flex items-center space-x-1.5 text-purple-300 font-semibold text-[11px]">
-                  <Lock className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
-                  <span>SHA-256 Cryptographic Audit Seal</span>
-                </div>
-                <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
-                  BIO-ANCHOR-A89F2E01 · Verified Unaltered
-                </p>
+            <div className="bg-[#060a06]/80 p-2.5 rounded-xl border border-[#233318]/70">
+              <div className="flex items-center justify-center text-amber-400 mb-1">
+                <Thermometer className="w-3.5 h-3.5" />
               </div>
-              <ChevronRight className="w-4 h-4 text-[#a855f7] group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+              <span className="text-xs font-bold text-white block">{tempVal}°</span>
+              <span className="text-[9px] text-slate-400 uppercase">Temp</span>
             </div>
 
-            {/* Signal 2: Invasive Species & Thermal Alert */}
-            <div 
-              onClick={() => {
-                if (criticalPond) onSelectPond(criticalPond);
-                else if (warningPond) onSelectPond(warningPond);
-              }}
-              className="bg-[#0f1524] p-2.5 rounded-xl border border-rose-900/60 hover:border-rose-500/50 transition-all cursor-pointer group flex items-center justify-between"
-            >
-              <div className="pr-2">
-                <div className="flex items-center space-x-1.5 text-rose-300 font-semibold text-[11px]">
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-400 flex-shrink-0 animate-pulse" />
-                  <span>Pond 04 Cyanobacteria Risk Alert</span>
-                </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">
-                  Phycocyanin Index 0.68 · Temp 31.8°C · pH 9.3
-                </p>
+            <div className="bg-[#060a06]/80 p-2.5 rounded-xl border border-[#233318]/70">
+              <div className="flex items-center justify-center text-yellow-400 mb-1">
+                <Sun className="w-3.5 h-3.5" />
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-rose-400 transition-colors flex-shrink-0" />
+              <span className="text-xs font-bold text-yellow-300 block">{solarVal}</span>
+              <span className="text-[9px] text-slate-400 uppercase">W/m²</span>
             </div>
 
-            {/* Signal 3: Net Carbon & Biomass Fate */}
-            <div 
-              onClick={() => onOpenEvidence()}
-              className="bg-[#0f1524] p-2.5 rounded-xl border border-emerald-900/60 hover:border-emerald-500/40 transition-all cursor-pointer group flex items-center justify-between"
-            >
-              <div className="pr-2">
-                <div className="flex items-center space-x-1.5 text-emerald-300 font-semibold text-[11px]">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                  <span>Biomass Fate & Net CO₂ Verified</span>
-                </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">
-                  41.1t Net CO₂ → Biochar 100% Permanence
-                </p>
+            <div className="bg-[#060a06]/80 p-2.5 rounded-xl border border-[#233318]/70">
+              <div className="flex items-center justify-center text-cyan-400 mb-1">
+                <CloudRain className="w-3.5 h-3.5" />
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
+              <span className="text-xs font-bold text-cyan-300 block">{rainVal}</span>
+              <span className="text-[9px] text-slate-400 uppercase">Rain</span>
             </div>
 
+            <div className="bg-[#060a06]/80 p-2.5 rounded-xl border border-[#233318]/70">
+              <div className="flex items-center justify-center text-blue-400 mb-1">
+                <Droplets className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-xs font-bold text-blue-300 block">{humidVal}%</span>
+              <span className="text-[9px] text-slate-400 uppercase">Humid</span>
+            </div>
+
+          </div>
+
+          <div className="pt-2.5 border-t border-[#233318]/60 flex items-center justify-between text-[10px] font-mono text-slate-400">
+            <span className="flex items-center gap-1.5 text-[#a3be8c]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#84a948]" />
+              CPCB Sabarmati Baseline:
+            </span>
+            <span className="text-slate-300">pH 8.3 · DO 7.0 mg/L · TDS 480 mg/L</span>
           </div>
         </div>
 
       </div>
 
-      {/* LAUNCH CROSS-SOURCE EVIDENCE INSPECTION BUTTON */}
-      <div className="pt-3 border-t border-slate-800/80 mt-2">
+      {/* SECTION 5: PRIMARY ACTION CTA */}
+      <div className="pt-4 border-t border-[#233318]/90 mt-3">
         <button
           onClick={() => onOpenEvidence()}
-          className="w-full py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-2xl transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center space-x-2 group cursor-pointer"
+          className="w-full py-3 bg-[#84a948] hover:bg-[#99b83c] text-slate-950 font-extrabold text-xs rounded-2xl transition-all shadow-lg shadow-[#84a948]/25 flex items-center justify-center space-x-2 group cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>Launch Cryptographic Audit Inspection</span>
+          <span>Launch Cross-Source Evidence Audit</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>

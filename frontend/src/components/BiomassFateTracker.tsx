@@ -95,15 +95,15 @@ export const BiomassFateTracker: React.FC<BiomassFateTrackerProps> = ({
   const permanentCreditsTonnes = permanentCreditsKg / 1000.0;
 
   return (
-    <div className="bg-[#090d17]/95 backdrop-blur-2xl border border-slate-800/90 rounded-3xl p-6 shadow-2xl space-y-6">
+    <div className="bg-[#0a0f0a]/95 backdrop-blur-2xl border border-[#283618]/90 rounded-3xl p-6 shadow-2xl space-y-6">
       
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#283618]/80 pb-4">
         <div>
           <div className="flex items-center space-x-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <ShieldCheck className="w-5 h-5 text-[#a3be8c]" />
             <h3 className="text-base font-extrabold text-white">Biomass Fate & Permanence Tracking</h3>
-            <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800 rounded-full">
+            <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#1c2710] text-[#d9ed92] border border-[#708238] rounded-full">
               AUDIT COMPLIANT
             </span>
           </div>
@@ -112,9 +112,9 @@ export const BiomassFateTracker: React.FC<BiomassFateTrackerProps> = ({
           </p>
         </div>
 
-        <div className="bg-slate-900/90 px-4 py-2 rounded-2xl border border-slate-800 text-right">
+        <div className="bg-[#10170d] px-4 py-2 rounded-2xl border border-[#283618] text-right">
           <span className="text-[10px] text-slate-400 block font-mono">Verified Permanent Credits</span>
-          <span className="text-xl font-black text-emerald-400 font-mono">
+          <span className="text-xl font-black text-[#d9ed92] font-mono">
             {permanentCreditsTonnes.toFixed(2)} <span className="text-xs text-slate-300">t CO₂e</span>
           </span>
         </div>
@@ -132,8 +132,8 @@ export const BiomassFateTracker: React.FC<BiomassFateTrackerProps> = ({
               onClick={() => setSelectedPathway(item.id)}
               className={`p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden ${
                 isSelected
-                  ? 'bg-slate-900 border-purple-500/80 ring-2 ring-purple-500/30 scale-[1.02]'
-                  : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                  ? 'bg-[#10170d] border-[#84a948] ring-2 ring-[#708238]/40 scale-[1.02]'
+                  : 'bg-[#0a0f0a]/60 border-[#283618]/70 hover:border-[#708238]/40'
               }`}
             >
               <div className="flex items-start justify-between mb-2">
@@ -145,8 +145,8 @@ export const BiomassFateTracker: React.FC<BiomassFateTrackerProps> = ({
                 </div>
 
                 <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                  item.score >= 90 ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
-                  item.score >= 60 ? 'bg-teal-950 text-teal-300 border border-teal-800' :
+                  item.score >= 90 ? 'bg-[#283618] text-[#d9ed92] border border-[#708238]' :
+                  item.score >= 60 ? 'bg-[#1c2710] text-[#a3be8c] border border-[#606c38]' :
                   item.score >= 15 ? 'bg-amber-950 text-amber-300 border border-amber-800' :
                   'bg-rose-950 text-rose-300 border border-rose-800'
                 }`}>
@@ -158,7 +158,7 @@ export const BiomassFateTracker: React.FC<BiomassFateTrackerProps> = ({
                 {item.description}
               </p>
 
-              <div className="flex items-center justify-between text-[10px] font-mono border-t border-slate-800/80 pt-2 text-slate-400">
+              <div className="flex items-center justify-between text-[10px] font-mono border-t border-[#283618]/60 pt-2 text-slate-400">
                 <span>{item.horizon}</span>
                 <span className={item.color}>{item.tier}</span>
               </div>
@@ -168,29 +168,29 @@ export const BiomassFateTracker: React.FC<BiomassFateTrackerProps> = ({
       </div>
 
       {/* DETAILED PERMANENCE BREAKDOWN PANEL */}
-      <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-[#0a0f0a] p-5 rounded-2xl border border-[#283618]/80 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-start space-x-3 max-w-xl">
-          <Info className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+          <Info className="w-5 h-5 text-[#a3be8c] flex-shrink-0 mt-0.5" />
           <div>
             <h4 className="text-xs font-bold text-white font-mono uppercase tracking-wider mb-1">
               PERMANENCE CALCULATION SUMMARY ({current.name})
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed">
               Net CO₂ Removed ({netCo2Kg.toFixed(1)} kg) × Permanence Score ({current.score}%) ={' '}
-              <strong className="text-emerald-400">{permanentCreditsKg.toFixed(1)} kg ({permanentCreditsTonnes.toFixed(3)} tonnes)</strong> verified permanent carbon credits.
+              <strong className="text-[#d9ed92]">{permanentCreditsKg.toFixed(1)} kg ({permanentCreditsTonnes.toFixed(3)} tonnes)</strong> verified permanent carbon credits.
             </p>
           </div>
         </div>
 
-        <div className="w-full md:w-64 bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
+        <div className="w-full md:w-64 bg-[#10170d] p-3 rounded-xl border border-[#283618] space-y-2">
           <div className="flex justify-between text-xs font-mono">
             <span className="text-slate-400">Permanence Score</span>
-            <span className="text-purple-400 font-bold">{current.score}%</span>
+            <span className="text-[#d9ed92] font-bold">{current.score}%</span>
           </div>
 
-          <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-[#1b250e] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-purple-500 via-indigo-500 to-emerald-400 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-[#556b2f] via-[#708238] to-[#d9ed92] transition-all duration-500"
               style={{ width: `${current.score}%` }}
             />
           </div>

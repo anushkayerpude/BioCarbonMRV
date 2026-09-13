@@ -55,24 +55,24 @@ class ReportGeneratorService:
     <meta charset="utf-8">
     <title>Digital Carbon Verification Report - {passport_data['passport_id']}</title>
     <style>
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 40px; }}
-        .header {{ border-bottom: 2px solid #10b981; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }}
-        .title {{ font-size: 28px; font-weight: bold; color: #10b981; margin: 0; }}
-        .badge {{ background-color: #064e3b; color: #34d399; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; border: 1px solid #059669; }}
+        body {{ font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #070b07; color: #f8fafc; margin: 0; padding: 40px; }}
+        .header {{ border-bottom: 2px solid #84a948; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }}
+        .title {{ font-size: 26px; font-weight: 800; color: #d9ed92; margin: 0; letter-spacing: -0.5px; }}
+        .badge {{ background-color: #1c2710; color: #d9ed92; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid #708238; font-family: monospace; }}
         .grid {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }}
-        .card {{ background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }}
-        .kpi-title {{ font-size: 14px; color: #94a3b8; margin-bottom: 6px; }}
-        .kpi-value {{ font-size: 26px; font-weight: bold; color: #38bdf8; }}
-        .checklist {{ list-style: none; padding: 0; }}
-        .checklist li {{ margin-bottom: 10px; color: #cbd5e1; font-size: 15px; }}
-        .disclaimer {{ background-color: #334155; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px; font-size: 13px; color: #e2e8f0; margin-top: 40px; }}
+        .card {{ background-color: #10170d; border-radius: 16px; padding: 22px; border: 1px solid #283618; }}
+        .kpi-title {{ font-size: 13px; color: #94a390; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }}
+        .kpi-value {{ font-size: 28px; font-weight: 800; color: #d9ed92; font-family: monospace; }}
+        .checklist {{ list-style: none; padding: 0; margin: 0; }}
+        .checklist li {{ margin-bottom: 10px; color: #cbd5c8; font-size: 14px; display: flex; align-items: center; }}
+        .disclaimer {{ background-color: #141d0b; border-left: 4px solid #84a948; padding: 16px; border-radius: 8px; font-size: 12px; color: #d9ed92; margin-top: 35px; border: 1px solid #283618; }}
     </style>
 </head>
 <body>
     <div class="header">
         <div>
-            <h1 class="title">ALGAE CARBON PASSPORT & DIGITAL MRV REPORT</h1>
-            <p style="color: #94a3b8; margin-top: 4px;">Farm: {passport_data['farm_name']} | Location: {passport_data['location']}</p>
+            <h1 class="title">BIOCARBON MRV · VERIFIED CARBON PASSPORT</h1>
+            <p style="color: #94a390; margin-top: 6px; font-size: 14px;">Farm: {passport_data['farm_name']} | Location: {passport_data['location']}</p>
         </div>
         <div class="badge">PASSPORT ID: {passport_data['passport_id']}</div>
     </div>

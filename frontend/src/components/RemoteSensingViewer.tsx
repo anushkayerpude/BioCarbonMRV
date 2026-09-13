@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Pond } from '../types';
-import { Compass, Camera, Sparkles, Satellite } from 'lucide-react';
+import { Camera, Sparkles, Satellite } from 'lucide-react';
 import { fetchPondImagery } from '../services/api';
 
 interface RemoteSensingViewerProps {
@@ -42,7 +42,7 @@ export const RemoteSensingViewer: React.FC<RemoteSensingViewerProps> = ({ ponds 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Satellite className="w-6 h-6 text-teal-400" />
+              <Satellite className="w-6 h-6 text-[#a3be8c]" />
               <span>Copernicus Sentinel-2 Level-2A Remote Sensing</span>
             </h2>
             <p className="text-xs text-slate-400 mt-1">
@@ -55,7 +55,7 @@ export const RemoteSensingViewer: React.FC<RemoteSensingViewerProps> = ({ ponds 
             <select
               value={selectedPondId}
               onChange={(e) => setSelectedPondId(e.target.value)}
-              className="bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500"
+              className="bg-[#10170d] border border-[#283618] text-slate-200 text-xs font-mono font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-[#84a948]"
             >
               {ponds.map(p => (
                 <option key={p.pond_id} value={p.pond_id}>
@@ -71,23 +71,23 @@ export const RemoteSensingViewer: React.FC<RemoteSensingViewerProps> = ({ ponds 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Synthetic Image Display Canvas */}
-        <div className="lg:col-span-2 glass-panel rounded-2xl p-6 border border-slate-800 flex flex-col">
+        <div className="lg:col-span-2 glass-panel rounded-2xl p-6 border border-[#283618] flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <Camera className="w-5 h-5 text-emerald-400" />
+              <Camera className="w-5 h-5 text-[#84a948]" />
               <h3 className="text-sm font-bold text-white font-mono">
                 {selectedPond?.name} ({selectedPondId}) • Sentinel-2 10m/px Multispectral Tile
               </h3>
             </div>
 
             {/* Layer Filter Controls */}
-            <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-mono">
+            <div className="flex items-center space-x-1 bg-[#0a0f0a] p-1 rounded-xl border border-[#283618] text-xs font-mono">
               {(['rgb', 'ngi', 'segmentation'] as const).map((layer) => (
                 <button
                   key={layer}
                   onClick={() => setSpectralLayer(layer)}
                   className={`px-3 py-1 rounded-lg font-bold uppercase transition-all ${
-                    spectralLayer === layer ? 'bg-teal-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-slate-200'
+                    spectralLayer === layer ? 'bg-[#84a948] text-slate-950 shadow-md shadow-[#84a948]/30 font-bold' : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   {layer}

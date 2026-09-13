@@ -50,7 +50,7 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
   ];
 
   return (
-    <header className="w-full bg-[#080b11] border-b border-slate-800/80 px-4 lg:px-6 py-2 flex items-center justify-between sticky top-0 z-50 shadow-2xl">
+    <header className="w-full bg-[#060a06]/90 backdrop-blur-xl border-b border-[#233318]/90 px-4 lg:px-6 py-2.5 flex items-center justify-between sticky top-0 z-50 shadow-2xl">
       
       {/* LEFT: Brand Logo & Title */}
       <div 
@@ -59,15 +59,15 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
       >
         {/* Double Ring / Infinity Carbon Leaf Logo */}
         <div className="relative w-9 h-9 flex items-center justify-center">
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-400/80 scale-100 group-hover:scale-110 transition-transform" />
-          <div className="absolute inset-0 rounded-full border-2 border-teal-300/60 translate-x-1.5 opacity-80" />
-          <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/50" />
+          <div className="absolute inset-0 rounded-full border-2 border-[#84a948]/80 scale-100 group-hover:scale-110 transition-transform" />
+          <div className="absolute inset-0 rounded-full border-2 border-[#d9ed92]/60 translate-x-1.5 opacity-80" />
+          <div className="w-3 h-3 rounded-full bg-[#84a948] shadow-lg shadow-[#84a948]/50" />
         </div>
 
         <div>
           <div className="flex items-center space-x-1.5">
             <span className="text-lg font-black tracking-tight text-white font-sans">
-              BioCarbon<span className="text-emerald-400">MRV</span>
+              BioCarbon<span className="text-[#a3be8c]">MRV</span>
             </span>
           </div>
           <p className="text-[9px] font-mono tracking-widest text-slate-400 uppercase font-bold">
@@ -77,7 +77,7 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
       </div>
 
       {/* CENTER: Navigation Tabs (Landing Page vs Dashboard vs Features) */}
-      <nav className="hidden lg:flex items-center space-x-1 bg-[#0f1524] p-1 rounded-xl border border-slate-800">
+      <nav className="hidden lg:flex items-center space-x-1 bg-[#10170d] p-1 rounded-xl border border-[#283618]">
         {mainTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -87,8 +87,8 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 isActive
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-gradient-to-r from-[#6b8e23] to-[#84a948] text-slate-950 shadow-md shadow-[#6b8e23]/30 font-bold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#182313]'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -109,9 +109,9 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search..."
-            className="w-full bg-[#0f1524] text-slate-200 placeholder-slate-500 text-xs rounded-xl pl-8 pr-8 py-1.5 border border-slate-800 focus:outline-none focus:border-emerald-500/60 transition-all"
+            className="w-full bg-[#10170d] text-slate-200 placeholder-slate-500 text-xs rounded-xl pl-8 pr-8 py-1.5 border border-[#283618] focus:outline-none focus:border-[#84a948]/70 transition-all"
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 px-1 py-0.2 bg-[#172033] text-slate-400 text-[9px] font-mono font-semibold rounded">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 px-1 py-0.2 bg-[#182313] text-slate-400 text-[9px] font-mono font-semibold rounded">
             ⌘K
           </div>
         </div>
@@ -120,15 +120,15 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
         <div className="relative hidden sm:block">
           <button
             onClick={() => setIsLocationOpen(!isLocationOpen)}
-            className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#0f1524] border border-slate-800 text-xs text-slate-200 hover:border-slate-700 transition-all font-medium"
+            className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#10170d] border border-[#283618] text-xs text-slate-200 hover:border-[#708238]/60 transition-all font-medium"
           >
-            <MapPin className="w-3.5 h-3.5 text-purple-400" />
+            <MapPin className="w-3.5 h-3.5 text-[#a3be8c]" />
             <span className="truncate max-w-[120px]">{selectedLocation}</span>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
           </button>
 
           {isLocationOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-[#0f1524] border border-slate-800 rounded-xl shadow-2xl py-1 z-50">
+            <div className="absolute right-0 mt-2 w-52 bg-[#10170d] border border-[#283618] rounded-xl shadow-2xl py-1 z-50">
               {locations.map((loc) => (
                 <button
                   key={loc}
@@ -138,8 +138,8 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
                   }}
                   className={`w-full text-left px-3.5 py-2 text-xs transition-colors ${
                     selectedLocation === loc
-                      ? 'bg-purple-950/60 text-purple-300 font-semibold'
-                      : 'text-slate-300 hover:bg-slate-800/60'
+                      ? 'bg-[#283618] text-[#d9ed92] font-semibold'
+                      : 'text-slate-300 hover:bg-[#182313]'
                   }`}
                 >
                   {loc}
@@ -150,8 +150,8 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
         </div>
 
         {/* Live Data Clock & WebSocket Stream Indicator */}
-        <div className="hidden 2xl:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#0f1524] border border-slate-800 text-xs font-mono">
-          <span className={`w-2 h-2 rounded-full ${wsStatus === 'CONNECTED' ? 'bg-emerald-400 animate-pulse' : wsStatus === 'RECONNECTING' ? 'bg-amber-400 animate-ping' : 'bg-slate-400'}`} />
+        <div className="hidden 2xl:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#10170d] border border-[#283618] text-xs font-mono">
+          <span className={`w-2 h-2 rounded-full ${wsStatus === 'CONNECTED' ? 'bg-[#84a948] animate-pulse' : wsStatus === 'RECONNECTING' ? 'bg-amber-400 animate-ping' : 'bg-slate-400'}`} />
           <span className="text-slate-300 font-medium">
             {wsStatus === 'CONNECTED' ? 'WS Stream Active' : wsStatus === 'RECONNECTING' ? 'WS Reconnecting...' : 'REST Fallback'}
           </span>
@@ -162,7 +162,7 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
         {/* Notification Bell */}
         <button 
           onClick={() => setActiveTab('dashboard')}
-          className="relative p-2 rounded-xl bg-[#0f1524] border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition-all"
+          className="relative p-2 rounded-xl bg-[#10170d] border border-[#283618] text-slate-300 hover:text-[#d9ed92] hover:border-[#708238] transition-all"
         >
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
@@ -171,7 +171,7 @@ export const BioCarbonNavbar: React.FC<BioCarbonNavbarProps> = ({
         {/* User Profile Avatar */}
         <button 
           onClick={() => setActiveTab('dashboard')}
-          className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-200 hover:border-emerald-500 transition-colors"
+          className="w-8 h-8 rounded-full bg-[#1b2618] border border-[#283618] flex items-center justify-center text-xs font-bold text-[#d9ed92] hover:border-[#84a948] transition-colors"
         >
           AY
         </button>

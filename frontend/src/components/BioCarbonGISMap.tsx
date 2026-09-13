@@ -146,7 +146,7 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
             ['get', 'status'],
             'CRITICAL', 'rgba(244, 63, 94, 0.35)',
             'WARNING', 'rgba(245, 158, 11, 0.35)',
-            'rgba(16, 185, 129, 0.28)'
+            'rgba(132, 169, 72, 0.35)'
           ],
           'fill-opacity': 0.85
         }
@@ -163,7 +163,7 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
             ['get', 'status'],
             'CRITICAL', '#f43f5e',
             'WARNING', '#f59e0b',
-            '#10b981'
+            '#84a948'
           ],
           'line-width': 2.5
         }
@@ -188,7 +188,16 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
       });
     });
 
+    // ResizeObserver ensures map dynamically fills the exact 60% viewport
+    const resizeObserver = new ResizeObserver(() => {
+      map.resize();
+    });
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+
     return () => {
+      resizeObserver.disconnect();
       map.remove();
     };
   }, []);
@@ -213,12 +222,12 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
           ? 'bg-rose-950/90 text-rose-300 border-rose-600 animate-pulse'
           : status === 'WARNING'
           ? 'bg-amber-950/90 text-amber-300 border-amber-600'
-          : 'bg-emerald-950/90 text-emerald-300 border-emerald-600'
-      } ${isSelected ? 'ring-2 ring-purple-400 scale-110' : ''}`;
+          : 'bg-[#182313]/95 text-[#d9ed92] border-[#708238]'
+      } ${isSelected ? 'ring-2 ring-[#d9ed92] scale-110' : ''}`;
 
       el.innerHTML = `
         <span class="w-2 h-2 rounded-full ${
-          status === 'CRITICAL' ? 'bg-rose-500 animate-ping' : status === 'WARNING' ? 'bg-amber-400' : 'bg-emerald-400'
+          status === 'CRITICAL' ? 'bg-rose-500 animate-ping' : status === 'WARNING' ? 'bg-amber-400' : 'bg-[#84a948]'
         }"></span>
         <span>${node.id}</span>
       `;
@@ -287,7 +296,7 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
   };
 
   return (
-    <div className="relative w-full h-[520px] rounded-3xl overflow-hidden border border-slate-800/90 shadow-2xl bg-[#080b12] flex flex-col justify-between">
+    <div className="relative w-full h-[660px] lg:h-[730px] 2xl:h-[780px] rounded-3xl overflow-hidden border border-[#233318]/90 shadow-2xl bg-[#060a06] flex flex-col justify-between">
       
       {/* MAP CONTAINER FOR MAPLIBRE GL JS */}
       <div ref={mapContainerRef} className="absolute inset-0 z-10 w-full h-full" />
@@ -296,17 +305,17 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
       <div className="absolute top-4 left-4 right-4 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pointer-events-none">
         
         {/* Left Location Info Pill */}
-        <div className="bg-[#0f1524]/90 backdrop-blur-xl border border-slate-800 px-4 py-2 rounded-2xl shadow-xl flex items-center space-x-3 pointer-events-auto">
-          <div className="w-8 h-8 rounded-xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center">
-            <MapPin className="w-4 h-4 text-emerald-400" />
+        <div className="bg-[#0a110a]/85 backdrop-blur-xl border border-[#233318]/80 px-4 py-2.5 rounded-2xl shadow-xl flex items-center space-x-3 pointer-events-auto">
+          <div className="w-9 h-9 rounded-xl bg-[#1c2710] border border-[#708238]/60 flex items-center justify-center shadow-md shadow-[#1c2710]/60">
+            <MapPin className="w-4 h-4 text-[#d9ed92]" />
           </div>
 
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="text-sm font-extrabold text-white font-sans flex items-center gap-1.5">
+              <h3 className="text-sm font-extrabold text-white font-sans flex items-center gap-2">
                 <span>Gujarat Algae Farm</span>
-                <span className="text-[9px] font-mono bg-purple-950 text-purple-300 border border-purple-800 px-1.5 py-0.5 rounded-md">
-                  MAPLIBRE GL
+                <span className="text-[10px] font-mono font-bold bg-[#16220e] text-[#d9ed92] border border-[#708238]/70 px-2 py-0.5 rounded-md tracking-wider">
+                  PRIMARY SATELLITE & GIS MRV
                 </span>
               </h3>
               <span className="text-[11px] text-slate-400">Ahmedabad, Gujarat, India</span>
@@ -315,21 +324,21 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
             <div className="flex items-center space-x-3 text-[10px] font-mono text-slate-400 mt-0.5">
               <span><strong className="text-slate-200">6</strong> Ponds</span>
               <span>•</span>
-              <span><strong className="text-slate-200">1.8 ha</strong> Total Area</span>
+              <span><strong className="text-slate-200">1.8 ha</strong> Area</span>
               <span>•</span>
-              <span className="text-emerald-400 font-semibold">Chlorella Primary Species</span>
+              <span className="text-[#a3be8c] font-semibold">Chlorella Monoculture</span>
             </div>
           </div>
         </div>
 
         {/* Right View Switcher (Map, Satellite, 3D) */}
-        <div className="bg-[#0f1524]/90 backdrop-blur-xl border border-slate-800 p-1 rounded-2xl shadow-xl flex items-center space-x-1 pointer-events-auto">
+        <div className="bg-[#0a110a]/85 backdrop-blur-xl border border-[#233318]/80 p-1 rounded-2xl shadow-xl flex items-center space-x-1 pointer-events-auto">
           <button
             onClick={() => handleViewModeChange('map')}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               mapMode === 'map'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#708238] text-white shadow-md shadow-[#708238]/40 font-bold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#182313]'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -339,8 +348,8 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
             onClick={() => handleViewModeChange('satellite')}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               mapMode === 'satellite'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#708238] text-white shadow-md shadow-[#708238]/40 font-bold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#182313]'
             }`}
           >
             <span>Satellite</span>
@@ -349,19 +358,19 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
             onClick={() => handleViewModeChange('bhuvan')}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               mapMode === 'bhuvan'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#84a948] text-slate-950 shadow-md shadow-[#84a948]/40 font-bold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#182313]'
             }`}
           >
-            <span className="text-[9px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-700 px-1 rounded">ISRO</span>
+            <span className="text-[9px] font-mono bg-[#283618] text-[#d9ed92] border border-[#708238] px-1 rounded">ISRO</span>
             <span>Bhuvan</span>
           </button>
           <button
             onClick={() => handleViewModeChange('3d')}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               mapMode === '3d'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#708238] text-white shadow-md shadow-[#708238]/40 font-bold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#182313]'
             }`}
           >
             <span>3D</span>
@@ -371,10 +380,10 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
       </div>
 
       {/* FLOATING MAP CONTROLS (Top Right of Map) */}
-      <div className="absolute right-5 top-20 z-30 flex flex-col items-center space-y-2 bg-[#0f1524]/90 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-800 shadow-2xl">
+      <div className="absolute right-5 top-20 z-30 flex flex-col items-center space-y-2 bg-[#0a0f0a]/90 backdrop-blur-xl p-1.5 rounded-2xl border border-[#283618] shadow-2xl">
         <button
           onClick={() => mapRef.current?.zoomIn()}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-[#d9ed92] hover:bg-[#182313] transition-colors"
           title="Zoom In"
         >
           <Plus className="w-4 h-4" />
@@ -382,13 +391,13 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
 
         <button
           onClick={() => mapRef.current?.zoomOut()}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-[#d9ed92] hover:bg-[#182313] transition-colors"
           title="Zoom Out"
         >
           <Minus className="w-4 h-4" />
         </button>
 
-        <div className="w-5 h-[1px] bg-slate-800" />
+        <div className="w-5 h-[1px] bg-[#283618]" />
 
         <button
           onClick={() => {
@@ -399,7 +408,7 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
               bearing: 0
             });
           }}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-[#d9ed92] hover:bg-[#182313] transition-colors"
           title="Re-center Map"
         >
           <Crosshair className="w-4 h-4" />
@@ -407,20 +416,20 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
 
         <button
           onClick={() => handleViewModeChange(mapMode === 'map' ? '3d' : 'map')}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-[#d9ed92] hover:bg-[#182313] transition-colors"
           title="Toggle 3D View"
         >
-          <Layers className="w-4 h-4 text-purple-400" />
+          <Layers className="w-4 h-4 text-[#a3be8c]" />
         </button>
       </div>
 
       {/* ISRO BHUVAN HYDROLOGY OVERLAY (Bottom Center) */}
       {mapMode === 'bhuvan' && (
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none hidden sm:flex">
-          <div className="bg-[#0f1524]/95 backdrop-blur-xl border border-emerald-500/50 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center space-x-3 pointer-events-auto">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+          <div className="bg-[#0a0f0a]/95 backdrop-blur-xl border border-[#708238]/60 px-4 py-2.5 rounded-2xl shadow-2xl flex items-center space-x-3 pointer-events-auto">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#84a948] animate-ping" />
             <div className="text-xs">
-              <span className="font-mono font-bold text-emerald-400 mr-2">ISRO BHUVAN FOUNDATION:</span>
+              <span className="font-mono font-bold text-[#d9ed92] mr-2">ISRO BHUVAN FOUNDATION:</span>
               <span className="text-slate-300 font-medium">Sabarmati River Basin (5A1A2) • Proximity: 2.49 km to Sabarmati Channel • Deep Alluvial Aquifer</span>
             </div>
           </div>
@@ -428,14 +437,14 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
       )}
 
       {/* FLOATING POND HEALTH LEGEND (Bottom Left of Map) */}
-      <div className="absolute left-5 bottom-5 z-30 bg-[#0f1524]/95 backdrop-blur-xl border border-slate-800/90 p-3.5 rounded-2xl shadow-2xl pointer-events-auto">
+      <div className="absolute left-5 bottom-5 z-30 bg-[#0a0f0a]/95 backdrop-blur-xl border border-[#283618] p-3.5 rounded-2xl shadow-2xl pointer-events-auto">
         <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-2">
           Pond Health
         </span>
 
         <div className="space-y-1.5 text-xs font-medium text-slate-300">
           <div className="flex items-center space-x-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#84a948] shadow-sm shadow-[#84a948]" />
             <span>Healthy</span>
           </div>
 
@@ -457,11 +466,11 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
       </div>
 
       {/* FLOATING SCALE BAR (Bottom Right of Map) */}
-      <div className="absolute right-5 bottom-5 z-30 bg-[#0f1524]/90 backdrop-blur-xl border border-slate-800 px-3 py-1.5 rounded-xl shadow-xl flex items-center space-x-4 text-[10px] font-mono text-slate-400 pointer-events-auto">
+      <div className="absolute right-5 bottom-5 z-30 bg-[#0a0f0a]/90 backdrop-blur-xl border border-[#283618] px-3 py-1.5 rounded-xl shadow-xl flex items-center space-x-4 text-[10px] font-mono text-slate-400 pointer-events-auto">
         <span>MapLibre GL Engine</span>
-        <div className="w-16 h-1 bg-slate-700 relative flex items-center justify-between">
-          <div className="w-0.5 h-2 bg-slate-400" />
-          <div className="w-0.5 h-2 bg-slate-400" />
+        <div className="w-16 h-1 bg-[#283618] relative flex items-center justify-between">
+          <div className="w-0.5 h-2 bg-[#708238]" />
+          <div className="w-0.5 h-2 bg-[#708238]" />
         </div>
         <span>250 m</span>
       </div>
