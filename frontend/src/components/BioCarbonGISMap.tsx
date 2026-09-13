@@ -18,8 +18,7 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
-
-  const [mapMode, setMapMode] = useState<'map' | 'satellite' | 'bhuvan' | '3d'>('map');
+  const [mapMode, setMapMode] = useState<'map' | 'satellite' | 'bhuvan' | '3d'>('satellite');
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Gujarat Algae Farm Center Coordinates (Ahmedabad, Gujarat)
@@ -89,16 +88,63 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
     { id: 'P06', coords: [72.6322, 23.2071] }
   ];
 
-  // Initialize MapLibre GL Map
+  // Initialize MapLibre GL Map with authentic real raster basemap tiles
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      style: {
+        version: 8,
+        sources: {
+          'satellite-tiles': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+          },
+          'satellite-labels': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256
+          },
+          'carto-dark-tiles': {
+            type: 'raster',
+            tiles: [
+              'https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png'
+            ],
+            tileSize: 256,
+            attribution: '&copy; CARTO'
+          }
+        },
+        layers: [
+          {
+            id: 'satellite-layer',
+            type: 'raster',
+            source: 'satellite-tiles',
+            layout: { visibility: 'visible' }
+          },
+          {
+            id: 'carto-dark-layer',
+            type: 'raster',
+            source: 'carto-dark-tiles',
+            layout: { visibility: 'none' }
+          },
+          {
+            id: 'satellite-labels-layer',
+            type: 'raster',
+            source: 'satellite-labels',
+            layout: { visibility: 'visible' }
+          }
+        ]
+      },
       center: farmCenter,
-      zoom: 15,
-      pitch: 0,
+      zoom: 15.3,
+      pitch: 25,
       bearing: 0,
       attributionControl: false
     });
@@ -251,6 +297,29 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
     if (!mapRef.current) return;
     const map = mapRef.current;
 
+    // Toggle base tile layers
+    if (map.getLayer('satellite-layer')) {
+      map.setLayoutProperty(
+        'satellite-layer',
+        'visibility',
+        (mode === 'satellite' || mode === '3d' || mode === 'bhuvan') ? 'visible' : 'none'
+      );
+    }
+    if (map.getLayer('satellite-labels-layer')) {
+      map.setLayoutProperty(
+        'satellite-labels-layer',
+        'visibility',
+        (mode === 'satellite' || mode === '3d') ? 'visible' : 'none'
+      );
+    }
+    if (map.getLayer('carto-dark-layer')) {
+      map.setLayoutProperty(
+        'carto-dark-layer',
+        'visibility',
+        mode === 'map' ? 'visible' : 'none'
+      );
+    }
+
     // Toggle Bhuvan WMS raster layer
     if (map.getLayer('bhuvan-wms-layer')) {
       map.setLayoutProperty(
@@ -279,8 +348,8 @@ export const BioCarbonGISMap: React.FC<BioCarbonGISMapProps> = ({
     } else if (mode === 'satellite') {
       map.flyTo({
         center: farmCenter,
-        zoom: 15.2,
-        pitch: 20,
+        zoom: 15.3,
+        pitch: 25,
         bearing: 0,
         duration: 1200
       });

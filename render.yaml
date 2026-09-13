@@ -1,0 +1,33 @@
+services:
+  # 1. FastAPI Python Backend Service (Persistent Container for WebSockets & 3.5s Simulation Loop)
+  - type: web
+    name: biocarbon-mrv-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+
+  # 2. React / Vite Frontend (Global High-Performance Static CDN)
+  - type: web
+    name: biocarbon-mrv-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    plan: free
+    autoDeploy: true
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: biocarbon-mrv-backend
+          property: url
