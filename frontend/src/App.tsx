@@ -16,6 +16,7 @@ import { BioCarbonPondFleetGrid } from './components/BioCarbonPondFleetGrid';
 import { useTelemetryWebSocket } from './services/websocket';
 import type { Pond, CO2Sequestration, VerificationScore, NWDPEnvironmentalContext } from './types';
 import { fetchFarmPonds, fetchFarmCarbon, fetchFarmVerification, fetchNWDPContext, triggerSensorTick } from './services/api';
+import { CarbonCursor } from './components/CarbonCursor';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<string>('landing');
@@ -117,6 +118,8 @@ export function App() {
 
   return (
     <div className={`min-h-screen bg-dark-olive-algae text-slate-100 font-sans overflow-x-hidden ${activeTab !== 'landing' ? 'pb-24' : ''}`}>
+      {/* BioCarbon Carbon Atom Custom Cursor */}
+      <CarbonCursor />
       
       {/* Top BioCarbonMRV Navbar (hidden on landing page) */}
       {activeTab !== 'landing' && (
