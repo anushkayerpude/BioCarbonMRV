@@ -202,7 +202,7 @@ flowchart TD
 <a id="demo-scenario"></a>
 ## 🎬 60-Second Interactive Demo Scenario
 
-For hackathon judges and evaluators, BioCarbonMRV features a built-in **Interactive Demo Walker Bar** at the bottom of the screen that navigates through the complete verification story in 5 quick clicks:
+For hackathon judges and evaluators, BioCarbonMRV features a built-in **Interactive Demo Walker Bar** at the bottom of the screen that navigates through complete verification story in 5 quick clicks:
 
 ```
 [ Step 1: Live Farm ] ──► [ Step 2: Anomaly Alert ] ──► [ Step 3: AI Diagnosis ] ──► [ Step 4: Evidence Modal ] ──► [ Step 5: Carbon Passport ]
